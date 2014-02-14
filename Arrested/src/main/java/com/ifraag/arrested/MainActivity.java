@@ -2,6 +2,7 @@ package com.ifraag.arrested;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -100,14 +101,25 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            Toast.makeText(this,"Settings is Pressed",Toast.LENGTH_SHORT).show();
-        }
-
+        /* Case Send action button is pressed. */
         if (id == R.id.action_send){
             Toast.makeText(this,"Send is Pressed",Toast.LENGTH_SHORT).show();
 
 
+        }
+
+        /* Case Settings button is pressed. */
+        if (id == R.id.action_settings) {
+
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+
+        /* Case Help button is pressed. */
+        if (id == R.id.action_help){
+            Toast.makeText(this, "Help is pressed", Toast.LENGTH_SHORT).show();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);

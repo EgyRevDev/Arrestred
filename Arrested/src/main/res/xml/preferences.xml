@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- First section divider represents user accounts on different social networks; facebook, twitter & GMail -->
+    <PreferenceCategory
+        android:title="@string/pref_category_a">
+
+        <Preference
+            android:key="pref_key_facebook"
+            android:icon="@drawable/ic_facebook_logo"
+            android:title="@string/pref_facebook_title"/>
+
+        <Preference
+            android:key="pref_key_twitter"
+            android:title="@string/pref_twitter_title"
+            android:icon="@drawable/ic_twitter_logo"/>
+
+        <Preference
+            android:key="pref_key_gmail"
+            android:title="@string/pref_gmail_title"
+            android:icon="@drawable/gmail_logo"/>
+    </PreferenceCategory>
+
+    <!-- Second section divider represents preferences on how to update user's location periodically. -->
+    <PreferenceCategory
+        android:title="@string/pref_category_b">
+
+        <Preference
+            android:key="pref_key_loc_update"
+            android:title="@string/pref_loc_update"/>
+        <Preference
+            android:key="pref_key_loc_update_freq"
+            android:title="@string/pref_loc_update_freq"/>
+    </PreferenceCategory>
+</PreferenceScreen>

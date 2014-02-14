@@ -3,29 +3,44 @@
 
     <string name="app_name">اتمسكت</string>
 
-    <!--Tabs titles -->
+    <!-- Tabs titles -->
     <string name="title_section1">مكان القبض</string>
     <string name="title_section2">جهة القبض</string>
     <string name="title_section3">معلومات إضافية</string>
-
 
     <string-array name="location_strings">
         <item>مظاهرة</item>
         <item>شارع</item>
         <item>منزل</item>
     </string-array>
-
     <string-array name="autority_strings">
         <item>الشرطة</item>
         <item>الجيش</item>
         <item>بلطجية</item>
     </string-array>
 
-    <!--Content description for each icon in the row of the list view -->
+    <!-- Content description for each icon in the row of the list view -->
     <string name="description">Image</string>
+
+    <!-- Title of Settings Activity -->
+    <string name="title_activity_settings">إعدادات</string>
 
     <!-- String values of action bar icons -->
     <string name="action_send">إرسال</string>
     <string name="action_settings">إعدادات</string>
+    <string name="action_help">مساعدة</string>
+
+    <!-- Sections Divider Titles -->
+    <string name="pref_category_a">شبكات التواصل</string>
+    <string name="pref_category_b">تحديث المكان</string>
+
+    <!-- Social Network group of preferences -->
+    <string name="pref_facebook_title">فيسبوك</string>
+    <string name="pref_twitter_title">تويتر</string>
+    <string name="pref_gmail_title">جوجل إيميل</string>
+
+    <!-- Location updates group of preferences -->
+    <string name="pref_loc_update">تتبع المكان</string>
+    <string name="pref_loc_update_freq">مدة التحديث التلقائي</string>
 
 </resources>
