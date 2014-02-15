@@ -6,10 +6,15 @@
     <PreferenceCategory
         android:title="@string/pref_category_a">
 
-        <Preference
+        <PreferenceScreen
             android:key="pref_key_facebook"
             android:icon="@drawable/ic_facebook_logo"
-            android:title="@string/pref_facebook_title"/>
+            android:title="@string/pref_facebook_title">
+
+            <intent android:action="com.ifraag.arrested.action.VIEW"
+                android:targetClass="com.ifraag.arrested.SettingsActivity"
+                android:data="preferences://fb_activity"/>
+        </PreferenceScreen>
 
         <Preference
             android:key="pref_key_twitter"

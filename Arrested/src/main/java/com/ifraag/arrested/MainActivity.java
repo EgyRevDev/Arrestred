@@ -3,6 +3,7 @@ package com.ifraag.arrested;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -112,6 +113,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         if (id == R.id.action_settings) {
 
             Intent intent = new Intent(this, SettingsActivity.class);
+            /* Since Settings Activity has an intent filter for "preferences" scheme in AndroidManifest file, then you have to
+            * set Uri before starting activity otherwise Settings Activity will not be started and an Exception is triggered. */
+            intent.setData(Uri.parse("preferences://activity1"));
             startActivity(intent);
             return true;
         }

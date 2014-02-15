@@ -1,9 +1,11 @@
-package com.ifraag.arrested;
+package com.ifraag.settings;
 
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
+
+import com.ifraag.arrested.R;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 /* Note that PreferenceFragment class requires API level 11 but current minimum SDK is 7 so
@@ -18,6 +20,10 @@ public class SettingsFragment extends PreferenceFragment {
         * Be careful to call getActivity() only when the fragment is attached to an activity.
         * When the fragment is not yet attached, or was detached during the end of its lifecycle, getActivity() will return null.*/
         getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+
+        /* Since all fragments of Sub-screens are displayed on same Settings Activity so you have to change Activity title according
+        * to the given fragment. */
+        getActivity().getActionBar().setTitle(R.string.title_activity_settings);
 
         /*Load the preferences from an XML resource*/
         addPreferencesFromResource(R.xml.preferences);
