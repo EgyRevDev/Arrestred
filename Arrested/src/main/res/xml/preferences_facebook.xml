@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/pref_facebook_title">
+
+    <Preference
+        android:key="pref_key_fb_login"
+        android:title="Login to Facebook" />
+
+    <Preference
+        android:key="pref_key_fb_like"
+        android:title="Like our Page on Facebook" />
+</PreferenceScreen>
