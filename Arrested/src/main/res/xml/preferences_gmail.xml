@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="pref_key_gmail_login"
+        android:title="Login to GMail" />
+
+    <!--<Preference
+        android:key="pref_key_fb_like"
+        android:title="Like our Page on Facebook" />-->
+</PreferenceScreen>

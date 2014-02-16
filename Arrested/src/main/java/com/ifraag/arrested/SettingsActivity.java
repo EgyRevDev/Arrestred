@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.ifraag.settings.FragmentFacebook;
+import com.ifraag.settings.FragmentGMail;
+import com.ifraag.settings.FragmentTwitter;
 import com.ifraag.settings.SettingsFragment;
-import com.ifraag.settings.SettingsFragmentFacebook;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -34,24 +37,28 @@ public class SettingsActivity extends PreferenceActivity {
             } else {
                 addPreferencesFromResource(R.xml.preferences);
             }
-        }else{ /* Case running Android is greater than or equal to API Level 11 */
+        }else { /* Case running Android is greater than or equal to API Level 11 */
 
             /*if (savedInstanceState == null)*/ /* TODO: I am not sure why did I comment this line? will it cause any run-time errors?*/
 
             /* Case given scheme is related to FB/Parent Settings activity. Not that it is passed in preferences.xml file as extra
              * data to start Activity. */
-            if(mScheme.equals("preferences://fb_activity")){
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.container, new SettingsFragmentFacebook())
-                        .commit();
-            }else {
+            PreferenceFragment mPrefFrag;
+            if (mScheme.equals("preferences://fb_activity")) {
+                mPrefFrag = new FragmentFacebook();
+            } else if (mScheme.equals("preferences://twt_activity")) {
+                mPrefFrag = new FragmentTwitter();
+            } else if (mScheme.equals("preferences://gm_activity")) {
+                mPrefFrag = new FragmentGMail();
+            } else {
+                mPrefFrag = new SettingsFragment();
                 /* Too important note; PreferenceFragment has been introduced in API 11 which equals to minimum SDK version
                  * of my current project so I did not face any compilation error when using an instance of PreferenceFragment.
                  * Otherwise I have got a compilation error since PreferenceFragment is not back-ported into support library v4.*/
-                getFragmentManager().beginTransaction()
-                        .replace(R.id.container, new SettingsFragment())
-                        .commit();
             }
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.container, mPrefFrag)
+                    .commit();
         }
     }
 

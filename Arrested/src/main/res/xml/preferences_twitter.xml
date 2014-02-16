@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="pref_key_twt_login"
+        android:title="Login to Twitter" />
+
+    <Preference
+        android:key="pref_key_twt_follow"
+        android:title="Follow us on Twitter" />
+</PreferenceScreen>
