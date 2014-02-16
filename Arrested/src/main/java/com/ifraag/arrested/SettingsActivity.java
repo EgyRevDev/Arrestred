@@ -8,8 +8,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.ifraag.arrested.MainActivity;
-import com.ifraag.arrested.R;
 import com.ifraag.settings.SettingsFragment;
 import com.ifraag.settings.SettingsFragmentFacebook;
 
@@ -51,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity {
                  * of my current project so I did not face any compilation error when using an instance of PreferenceFragment.
                  * Otherwise I have got a compilation error since PreferenceFragment is not back-ported into support library v4.*/
                 getFragmentManager().beginTransaction()
-                        .add(R.id.container, new SettingsFragment())
+                        .replace(R.id.container, new SettingsFragment())
                         .commit();
             }
         }
@@ -123,5 +121,26 @@ public class SettingsActivity extends PreferenceActivity {
         /* Too important note; I did not handle R.id.home since I have already added in the Manifest file:
         * 1- parentActivityName attribute (starting from API 16)
         * 2- Meta data to support older devices. */
+    }
+
+    @Override
+    public void onBackPressed() {
+    /* It seems that either i still don't understand fragments well or there is a bug in Android so I have to workaround
+    Back button pressed behaviour since, by above code if pressed Up button from Facebook sub-screen then
+    back from settings screen, You will have another settings screen not Main Activity. */
+
+        if (mScheme.equals("preferences://activity1")){
+            Intent intent = new Intent(this, MainActivity.class);
+
+                /* With this flag, if the activity you're starting already exists in the current task,
+                 * then all activities on top of it are destroyed and it is brought to the front.
+                 * you should usually not create a new instance of the home activity. Otherwise,
+                 * you might end up with a long stack of activities in the current task with multiple
+                 * instances of the home activity.*/
+
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }else
+            super.onBackPressed();
     }
 }
