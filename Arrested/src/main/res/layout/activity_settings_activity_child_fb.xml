@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".SettingsActivityChildFB"
+    tools:ignore="MergeRootFrame">
+    <fragment
+        android:name="com.ifraag.settings.FragmentFacebookLogin"
+        android:id="@+id/loginFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="login_frag"/>
+
+    <fragment
+        android:name="com.ifraag.settings.FragmentFacebookProfile"
+        android:id="@+id/profileFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:tag="profile_tag"/>
+</LinearLayout>

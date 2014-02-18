@@ -4,10 +4,10 @@
     android:title="@string/pref_facebook_title">
 
     <Preference
-        android:key="pref_key_fb_login"
-        android:title="Login to Facebook" />
-
-    <Preference
         android:key="pref_key_fb_like"
         android:title="Like our Page on Facebook" />
+
+    <Preference
+        android:key="pref_key_fb_login"
+        android:layout="@layout/activity_settings_activity_child_fb" />
 </PreferenceScreen>

@@ -2,38 +2,63 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ifraag.arrested"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0">
 
     <uses-sdk
         android:minSdkVersion="10"
         android:targetSdkVersion="19" />
 
+    <!-- Internet permission must be added due to HTTP Requests/Gets that exchanged with Facebook server -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
+
         <activity
             android:name="com.ifraag.arrested.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="com.ifraag.arrested.SettingsActivity"
             android:label="@string/title_activity_settings">
+            <intent-filter>
+                <!-- action name can have any value, Note that it is not an android action name. -->
+                <action android:name="com.ifraag.arrested.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="preferences" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.ifraag.arrested.SettingsActivityChildFB">
 
             <intent-filter>
                 <!-- action name can have any value, Note that it is not an android action name. -->
-                <action android:name="com.ifraag.arrested.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:scheme ="preferences"/>
+                <action android:name="com.ifraag.arrested.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </activity>
+
+        <!-- According to Facebook SDK documentation must, following activity must be added -->
+        <activity
+            android:name="com.facebook.LoginActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/app_name" />
+
+        <!-- Set Facebook application ID-->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/app_id" />
     </application>
 
 </manifest>

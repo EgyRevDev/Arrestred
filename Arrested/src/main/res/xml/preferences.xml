@@ -12,8 +12,8 @@
             android:title="@string/pref_facebook_title">
 
             <intent android:action="com.ifraag.arrested.action.VIEW"
-                android:targetClass="com.ifraag.arrested.SettingsActivity"
-                android:data="preferences://fb_activity"/>
+                android:targetClass="com.ifraag.arrested.SettingsActivityChildFB"
+                />
         </PreferenceScreen>
 
         <PreferenceScreen

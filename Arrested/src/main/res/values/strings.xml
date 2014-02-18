@@ -42,5 +42,7 @@
     <!-- Location updates group of preferences -->
     <string name="pref_loc_update">تتبع المكان</string>
     <string name="pref_loc_update_freq">مدة التحديث التلقائي</string>
-
+    <string name="title_activity_settings_activity_child_fb">SettingsActivityChildFB</string>
+    /* This is the application ID, that is obtained after creating Facebook application in FB developer console */
+    <string name="app_id">733540373322973</string>
 </resources>

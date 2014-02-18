@@ -1,1 +1,1 @@
-include ':Arrested'
+include ':libraries:facebook',':Arrested'
