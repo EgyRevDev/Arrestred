@@ -16,7 +16,7 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 
-public class SettingsActivityChildFB extends FragmentActivity {
+public class SettingsActivityFacebook extends FragmentActivity {
 
     /* Constant indices to Facebook Login/Profile Fragments. They will be used to manipulate with fragments. */
     private static final int LOGIN = 0;
@@ -118,19 +118,7 @@ public class SettingsActivityChildFB extends FragmentActivity {
         int id = item.getItemId();
 
         if (id == android.R.id.home){
-            Intent  intent = new Intent(this,SettingsActivity.class);
-               /* Since Settings Activity has an intent filter for "preferences" scheme in AndroidManifest file, then you have to
-                * set Uri before starting activity otherwise Settings Activity will not be started and an Exception is triggered. */
-            intent.setData(Uri.parse("preferences://activity1"));
-                /* With this flag, if the activity you're starting already exists in the current task,
-                 * then all activities on top of it are destroyed and it is brought to the front.
-                 * you should usually not create a new instance of the home activity. Otherwise,
-                 * you might end up with a long stack of activities in the current task with multiple
-                 * instances of the home activity.*/
-
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-            startActivity(intent);
+            restartParentActivity();
             return true;
         }
 
@@ -185,5 +173,27 @@ public class SettingsActivityChildFB extends FragmentActivity {
                 .beginTransaction()
                 .hide(fragments[fragmentIndex]) //TODO: handle error cases: out of array boundaries
                 .commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        restartParentActivity();
+    }
+
+    private void restartParentActivity () {
+        Intent intent = new Intent(this, SettingsActivity.class);
+
+        /* Since Settings Activity has an intent filter for "preferences" scheme in AndroidManifest file, then you have to
+         * set Uri before starting activity otherwise Settings Activity will not be started and an Exception is triggered. */
+        intent.setData(Uri.parse("preferences://activity1"));
+
+        /* With this flag, if the activity you're starting already exists in the current task,
+         * then all activities on top of it are destroyed and it is brought to the front.
+         * you should usually not create a new instance of the home activity. Otherwise,
+         * you might end up with a long stack of activities in the current task with multiple
+         * instances of the home activity.*/
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        startActivity(intent);
     }
 }

@@ -2,40 +2,19 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- First section divider represents user accounts on different social networks; facebook, twitter & GMail -->
+    <!-- First section divider represents user accounts on different social networks; facebook, twitter & GMail
+    Note that preferences will be created dynamically upon user choice of account type Dialog-->
     <PreferenceCategory
-        android:title="@string/pref_category_a">
+        android:title="@string/pref_category_a"
+        android:key="pref_category_accounts">
 
-        <PreferenceScreen
-            android:key="pref_key_facebook"
-            android:icon="@drawable/ic_facebook_logo"
-            android:title="@string/pref_facebook_title">
-
-            <intent android:action="com.ifraag.arrested.action.VIEW"
-                android:targetClass="com.ifraag.arrested.SettingsActivityChildFB"
-                />
-        </PreferenceScreen>
-
-        <PreferenceScreen
-            android:key="pref_key_twitter"
-            android:icon="@drawable/ic_twitter_logo"
-            android:title="@string/pref_twitter_title">
-
-            <intent android:action="com.ifraag.arrested.action.VIEW"
-                android:targetClass="com.ifraag.arrested.SettingsActivity"
-                android:data="preferences://twt_activity"/>
-        </PreferenceScreen>
-
-        <PreferenceScreen
-            android:key="pref_key_gmail"
-            android:icon="@drawable/gmail_logo"
-            android:title="@string/pref_gmail_title">
-
-            <intent android:action="com.ifraag.arrested.action.VIEW"
-                android:targetClass="com.ifraag.arrested.SettingsActivity"
-                android:data="preferences://gm_activity"/>
-        </PreferenceScreen>
-
+        <com.ifraag.settings.CustomPreference
+            android:key="pref_add_new_account_type"
+            android:icon="@drawable/ic_action_new"
+            android:title="@string/pref_custom_add_account"
+            android:dialogTitle="@string/pref_custom_add_account"
+            android:entries="@array/pref_account_types_entries"
+            android:entryValues="@array/pref_account_types_values"/>
     </PreferenceCategory>
 
     <!-- Second section divider represents preferences on how to update user's location periodically. -->

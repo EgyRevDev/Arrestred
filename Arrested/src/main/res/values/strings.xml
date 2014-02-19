@@ -31,7 +31,7 @@
     <string name="action_help">مساعدة</string>
 
     <!-- Sections Divider Titles -->
-    <string name="pref_category_a">شبكات التواصل</string>
+    <string name="pref_category_a">حسابات مواقع التواصل</string>
     <string name="pref_category_b">تحديث المكان</string>
 
     <!-- Social Network group of preferences -->
@@ -43,6 +43,26 @@
     <string name="pref_loc_update">تتبع المكان</string>
     <string name="pref_loc_update_freq">مدة التحديث التلقائي</string>
     <string name="title_activity_settings_activity_child_fb">SettingsActivityChildFB</string>
-    /* This is the application ID, that is obtained after creating Facebook application in FB developer console */
+
+    <!--This is the application ID, that is obtained after creating Facebook application in FB developer console-->
     <string name="app_id">733540373322973</string>
+
+
+    <string name="pref_custom_add_account">أضف حساب</string>
+    <!-- The human-readable array to present as a preferences list of available accounts types -->
+    <string-array name="pref_account_types_entries">
+        <item name="pref_facebook">فيسبوك</item>
+        <item name="pref_twitter">تويتر</item>
+        <item name="pref_gmail">جوجل إيميل</item>
+    </string-array>
+
+    <!-- The array to find the value to save for a preference when an entry from entries is selected. -->
+    <string-array name="pref_account_types_values">
+        <item name="pref_facebook">1</item>
+        <item name="pref_twitter">2</item>
+        <item name="pref_gmail">3</item>
+    </string-array>
+
+    <string name="warn_msg_part_1">يمكن تسجيل حساب</string>
+    <string name="warn_msg_part_2">واحدا فقط</string>
 </resources>

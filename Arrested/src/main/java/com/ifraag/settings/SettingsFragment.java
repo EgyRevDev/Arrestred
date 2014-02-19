@@ -3,7 +3,9 @@ package com.ifraag.settings;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 
 import com.ifraag.arrested.R;
 
@@ -27,5 +29,18 @@ public class SettingsFragment extends PreferenceFragment {
 
         /*Load the preferences from an XML resource*/
         addPreferencesFromResource(R.xml.preferences);
+
+        PreferenceGroup pg = (PreferenceGroup) getPreferenceManager().findPreference("pref_category_accounts");
+        /* Check if there are any configured account types, Display all*/
+        if (0 != CustomPreference.preferencesList.size()){
+
+            for(Preference pref:CustomPreference.preferencesList)
+                pg.addPreference(pref);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }
