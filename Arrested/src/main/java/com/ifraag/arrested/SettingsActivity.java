@@ -9,7 +9,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.ifraag.settings.FragmentFacebook;
 import com.ifraag.settings.FragmentGMail;
 import com.ifraag.settings.FragmentTwitter;
 import com.ifraag.settings.SettingsFragment;
@@ -33,7 +32,7 @@ public class SettingsActivity extends PreferenceActivity {
             /* Case given scheme is related to FB/Parent Settings activity. Not that it is passed in preferences.xml file as extra
              * data to start Activity. */
             if(mScheme.equals("preferences://fb_activity")) {
-                addPreferencesFromResource(R.xml.preferences_facebook);
+                addPreferencesFromResource(R.xml.preferences);
             } else {
                 addPreferencesFromResource(R.xml.preferences);
             }
@@ -44,9 +43,7 @@ public class SettingsActivity extends PreferenceActivity {
             /* Case given scheme is related to FB/Parent Settings activity. Not that it is passed in preferences.xml file as extra
              * data to start Activity. */
             PreferenceFragment mPrefFrag;
-            if (mScheme.equals("preferences://fb_activity")) {
-                mPrefFrag = new FragmentFacebook();
-            } else if (mScheme.equals("preferences://twt_activity")) {
+            if (mScheme.equals("preferences://twt_activity")) {
                 mPrefFrag = new FragmentTwitter();
             } else if (mScheme.equals("preferences://gm_activity")) {
                 mPrefFrag = new FragmentGMail();
