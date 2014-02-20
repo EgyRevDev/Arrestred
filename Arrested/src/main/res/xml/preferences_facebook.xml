@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    android:title="@string/pref_facebook_title">
+    >
 
     <Preference
-        android:key="pref_key_fb_like"
-        android:title="Like our Page on Facebook" />
+        android:key="pref_facebook_account"/>
 
+    <!-- Just for testing to be removed -->
     <Preference
-        android:key="pref_key_fb_login"
-        android:layout="@layout/activity_settings_activity_child_fb" />
+        android:key="pref_facebook_account_v2"/>
+
+    <!-- Just for testing to be removed -->
+    <Preference
+        android:key="pref_facebook_account_v3"/>
 </PreferenceScreen>

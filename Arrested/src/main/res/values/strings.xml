@@ -65,4 +65,6 @@
 
     <string name="warn_msg_part_1">يمكن تسجيل حساب</string>
     <string name="warn_msg_part_2">واحدا فقط</string>
+    <string name="action_login">Login</string>
+    <string name="action_like">Like</string>
 </resources>

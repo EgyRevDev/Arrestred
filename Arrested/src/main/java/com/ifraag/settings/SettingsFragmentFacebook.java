@@ -3,6 +3,7 @@ package com.ifraag.settings;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 import com.ifraag.arrested.R;
@@ -12,6 +13,7 @@ import com.ifraag.arrested.R;
  * I have to add target API annotation telling Lint that I am sure that I will use this class only when API level greater than or equal to 11*/
 public class SettingsFragmentFacebook extends PreferenceFragment {
 
+    public static Preference mPreference;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,5 +29,19 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
 
         /*Load the preferences from an XML resource*/
         addPreferencesFromResource(R.xml.preferences_facebook);
+
+        /* Set default icon to default facebook login icon */
+        mPreference = findPreference("pref_facebook_account");
+        mPreference.setIcon(R.drawable.com_facebook_profile_default_icon);
+        mPreference.setTitle("Username");
+
+        /* TODO: Remove, this was just for testing. */
+        Preference preference2 = findPreference("pref_facebook_account_v2");
+        preference2.setIcon(R.drawable.com_facebook_profile_picture_blank_portrait);
+        preference2.setTitle("profile_picture_blank_portrait");
+
+        Preference preference3 = findPreference("pref_facebook_account_v3");
+        preference3.setIcon(R.drawable.com_facebook_profile_picture_blank_square );
+        preference3.setTitle("profile_picture_blank_square");
     }
 }

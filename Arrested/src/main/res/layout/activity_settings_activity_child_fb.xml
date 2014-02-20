@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
+    android:id="@+id/container"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     tools:context=".SettingsActivityChildFB"
     tools:ignore="MergeRootFrame">
 
-    <fragment
+    <!-- You must add this list view whose id is set to android.R.id.list Since PreferenceActivity is used. -->
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@android:id/list"/>
+
+    <!--<fragment
         android:name="com.ifraag.settings.FragmentFacebookProfile"
         android:id="@+id/profileFragment"
         android:layout_width="wrap_content"
@@ -25,7 +31,7 @@
         android:tag="login_frag"
         android:layout_below="@id/profileFragment"
         tools:layout="@layout/fragment_fb_login"
-        android:layout_marginLeft="16dp"/>
+        android:layout_marginLeft="16dp"/>-->
 
    <!-- <fragment
         android:name="com.ifraag.settings.FragmentFacebookLike"
@@ -35,4 +41,4 @@
         android:layout_below="@id/loginFragment"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"/>-->
-</RelativeLayout>
+</FrameLayout>

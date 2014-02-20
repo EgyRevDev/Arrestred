@@ -6,4 +6,14 @@
         android:title="@string/action_help"
         android:orderInCategory="100"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_login"
+        android:title="@string/action_login"
+        android:showAsAction="ifRoom|withText"
+        android:icon="@drawable/ic_action_person"/>
+
+    <item android:id="@+id/action_like"
+        android:title="@string/action_like"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_good"/>
 </menu>
