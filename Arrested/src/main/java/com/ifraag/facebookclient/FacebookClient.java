@@ -7,6 +7,7 @@
 package com.ifraag.facebookclient;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -180,9 +181,12 @@ public class FacebookClient {
                     }
                 }
                 if (response.getError() != null) {
-                    /* TODO: Handle this error later: At least generate Alert Dialog to user.*/
                     Log.i(FB_CLIENT_TAG, " an error occurred while getting Facebook API response");
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(currentContext)
+                            .setTitle("Connection Error")
+                            .setMessage("Turn on WiFi or Data Connection");
 
+                    alertDialog.show();
                 }
             } /*onCompleted*/
         }/* anonymous class */);
@@ -518,7 +522,12 @@ public class FacebookClient {
                 inputStream = new URL(url).openStream();
             } catch (IOException e) {
                 Log.e(FB_CLIENT_TAG, "Failed to get user profile picture");
-                /* TODO: Show Alert Dialog in this case. */
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(currentContext)
+                        .setTitle("Connection Error")
+                        .setMessage("Turn on WiFi or Data Connection");
+
+                alertDialog.show();
                 e.printStackTrace();
             }
 
@@ -548,7 +557,5 @@ public class FacebookClient {
     * https://developers.facebook.com/docs/android/scrumptious/publish-open-graph-story */
 
     /* TODO: It seems that it will be very useful to use advanced features described here: http://goo.gl/IQosfp*/
-
-    /* TODO: Suggest users to like facebook page of Ifraag from our Android application. Check out this http://goo.gl/WFJdtG */
 
 }

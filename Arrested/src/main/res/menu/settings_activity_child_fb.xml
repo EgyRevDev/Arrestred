@@ -1,19 +1,21 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".SettingsActivityChildFB">
 
     <item android:id="@+id/action_help"
         android:title="@string/action_help"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 
     <item android:id="@+id/action_login"
         android:title="@string/action_login"
-        android:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_action_person"/>
+        android:icon="@drawable/ic_action_person"
+        app:showAsAction="ifRoom|withText"/>
 
     <item android:id="@+id/action_like"
         android:title="@string/action_like"
-        android:showAsAction="always"
-        android:icon="@drawable/ic_action_good"/>
+        android:icon="@drawable/ic_action_good"
+        app:showAsAction="ifRoom"
+        app:actionProviderClass="com.ifraag.settings.CustomActionProvider"/>
 </menu>

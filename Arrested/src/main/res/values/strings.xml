@@ -67,4 +67,12 @@
     <string name="warn_msg_part_2">واحدا فقط</string>
     <string name="action_login">Login</string>
     <string name="action_like">Like</string>
+
+    <string name="no_mil_trials">صفحة لا للمحاكمات العسكرية</string>
+    <string name="ifraag">صفحة إفراج</string>
+    <string name="fdep">صفحة جبهة الدفاع عن متظاهري مصر</string>
+
+    <item type="id" name="menu_id_no_mil_trials"/>
+    <item type="id" name="menu_id_ifraag"/>
+    <item type="id" name="menu_id_fdep"/>
 </resources>
