@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Arrested.iml" filepath="$PROJECT_DIR$/Arrested.iml" />
       <module fileurl="file://$PROJECT_DIR$/Arrested/Arrested-Arrested.iml" filepath="$PROJECT_DIR$/Arrested/Arrested-Arrested.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libraries/android-support-v4-preferencefragment/android-support-v4-preferencefragment.iml" filepath="$PROJECT_DIR$/libraries/android-support-v4-preferencefragment/android-support-v4-preferencefragment.iml" />
       <module fileurl="file://$PROJECT_DIR$/libraries/facebook/facebook.iml" filepath="$PROJECT_DIR$/libraries/facebook/facebook.iml" />
       <module fileurl="file://$PROJECT_DIR$/libraries/libraries.iml" filepath="$PROJECT_DIR$/libraries/libraries.iml" />
     </modules>

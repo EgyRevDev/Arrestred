@@ -1,1 +1,1 @@
-include ':libraries:facebook',':Arrested'
+include ':libraries:facebook','libraries:android-support-v4-preferencefragment',':Arrested'

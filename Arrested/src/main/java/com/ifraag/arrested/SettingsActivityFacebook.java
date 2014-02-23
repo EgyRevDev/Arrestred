@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,7 +16,7 @@ import com.facebook.Session;
 import com.ifraag.facebookclient.FacebookClient;
 import com.ifraag.settings.SettingsFragmentFacebook;
 
-public class SettingsActivityFacebook extends PreferenceActivity {
+public class SettingsActivityFacebook extends ActionBarActivity {
 
     FacebookClient facebookClient;
 
@@ -28,21 +28,16 @@ public class SettingsActivityFacebook extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_activity_child_fb);
 
-        /*Check running Android API version. If it is less than API Level 11, use deprecated methods to respective Settings*/
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActionBar().setTitle(
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle(
                     getResources().getString(R.string.title_activity_settings) +
                             "  "+
                             getResources().getString(R.string.pref_facebook_title));
 
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, new SettingsFragmentFacebook())
                     .commit();
-        }else{
-            addPreferencesFromResource(R.xml.preferences_facebook);
-        }
 
         /* An instance of FacebookView interface to implement how would my layout views change as result for facebook session
         * state changes. */

@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends ActionBarActivity {
 
     public static final String KEY_PREFIX = "pref_key_dynamic";
     private static final String KEY_PREFIX_ICON_RES_ID = "icon_resource_id";
@@ -31,7 +29,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     private PreferenceGroup preferenceCategory;
 
-    @SuppressWarnings("deprecation") /* To remove Lint warning for using deprecated method addPreferencesFromResource. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -42,21 +39,13 @@ public class SettingsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        /* Check running Android API version. If it is less than API Level 11, use deprecated methods to respective Settings */
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            addPreferencesFromResource(R.xml.preferences);
-            preferenceCategory = (PreferenceGroup) getPreferenceScreen().findPreference("pref_category_accounts");
-            /*preferenceCategory.setOrderingAsAdded(false);*/ /* TODO: Check which is better? */
-        } else {
-            PreferenceFragment pf = new SettingsFragment();
-            getFragmentManager().beginTransaction()
-                    .replace(R.id.container,pf )
-                    .commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new SettingsFragment())
+                .commit();
                     /*Schedules a commit of this transaction.
                     The commit does not happen immediately; it will be scheduled as work on the main thread to be done
                     the next time that thread is ready. That's why you can't get a reference to preference category
                     after calling commit directly.*/
-        }
 
         if (null == savedInstanceState) {
             loadFromSharedPreference();
@@ -140,9 +129,9 @@ public class SettingsActivity extends PreferenceActivity {
         super.onRestoreInstanceState(state);
     }
 
-    private void saveToSharedPreferences(){
+    private void saveToSharedPreferences() {
         String str = getPackageName();
-        SharedPreferences sharedPreferences = getSharedPreferences(str,MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(str, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         for (CustomPreference pref : preferencesList) {
@@ -153,7 +142,7 @@ public class SettingsActivity extends PreferenceActivity {
         editor.commit();
     }
 
-    private void loadFromSharedPreference(){
+    private void loadFromSharedPreference() {
         SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
