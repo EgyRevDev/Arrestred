@@ -1,13 +1,16 @@
 package com.ifraag.settings;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 
 import com.ifraag.arrested.R;
+import com.ifraag.arrested.SettingsActivity;
+
+import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 /* Note that PreferenceFragment class requires API level 11 but current minimum SDK is 7 so
@@ -31,16 +34,17 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.preferences);
 
         PreferenceGroup pg = (PreferenceGroup) getPreferenceManager().findPreference("pref_category_accounts");
-        /* Check if there are any configured account types, Display all*/
-        if (0 != CustomPreference.preferencesList.size()){
+        ((SettingsActivity)getActivity()).setPreferenceCategory(pg);
 
-            for(Preference pref:CustomPreference.preferencesList)
-                pg.addPreference(pref);
-        }
+        addPreferencesToPreferenceCategory(pg);
+
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
+    private void addPreferencesToPreferenceCategory( PreferenceGroup a_preferenceGroup){
+        Context context = getActivity();
+        List<CustomPreference> listOfPreferences = ((SettingsActivity) context).getPreferencesList();
+
+        for (CustomPreference preference: listOfPreferences)
+            a_preferenceGroup.addPreference(preference);
     }
 }

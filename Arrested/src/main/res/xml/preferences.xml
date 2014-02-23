@@ -8,7 +8,7 @@
         android:title="@string/pref_category_a"
         android:key="pref_category_accounts">
 
-        <com.ifraag.settings.CustomPreference
+        <com.ifraag.settings.CustomListPreference
             android:key="pref_add_new_account_type"
             android:icon="@drawable/ic_action_new"
             android:title="@string/pref_custom_add_account"
