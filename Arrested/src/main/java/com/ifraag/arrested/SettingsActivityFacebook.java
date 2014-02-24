@@ -18,31 +18,33 @@ import com.ifraag.settings.SettingsFragmentFacebook;
 
 public class SettingsActivityFacebook extends ActionBarActivity {
 
+    /* An instance of Facebook client. It is responsible for wrapping Facebook GRAPH API communication*/
     FacebookClient facebookClient;
 
+    /* An instance of Login/Logout Action Bar button. Its text title should be changed according to login state of user.*/
     MenuItem actionBarLogin;
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings_activity_child_fb);
 
+        /* Enable the app icon as an Up button */
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(
-                    getResources().getString(R.string.title_activity_settings) +
-                            "  "+
-                            getResources().getString(R.string.pref_facebook_title));
+        /* Add Preference Fragment to the current Activity context. */
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new SettingsFragmentFacebook())
+                .commit();
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, new SettingsFragmentFacebook())
-                    .commit();
-
-        /* An instance of FacebookView interface to implement how would my layout views change as result for facebook session
-        * state changes. */
+        /* An instance of FacebookView interface to implement how would my layout views change at run-time as result for
+        * facebook session state changes. */
         MyFBView myFacebookView = new MyFBView();
-        facebookClient = new FacebookClient(this, myFacebookView );
+
+        /* Initialize facebook client instance variable with the layout callback to be invoked upon session changes. */
+        facebookClient = new FacebookClient(this, myFacebookView);
+
+        /* Activate user's facebook session. */
         facebookClient.activateSession(getIntent().getExtras());
     }
 
@@ -103,7 +105,7 @@ public class SettingsActivityFacebook extends ActionBarActivity {
 
         if (id == R.id.action_help) {
 
-            Toast.makeText(this, "Help is pressed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Help TBD", Toast.LENGTH_SHORT).show();
             return true;
         }
 

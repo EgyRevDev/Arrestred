@@ -12,7 +12,8 @@ import android.support.v7.app.ActionBarActivity;
 import com.ifraag.arrested.R;
 
 /* Note that PreferenceFragment class requires API level 11 but current minimum SDK is 7 so
- * I have to add target API annotation telling Lint that I am sure that I will use this class only when API level greater than or equal to 11*/
+ * I have to use unofficial android-support-v4-PreferenceFragment library project to be able to use Preference Fragment
+ * on any Android API whose level is 4+ */
 public class SettingsFragmentFacebook extends PreferenceFragment {
 
     public static Preference mPreference;
@@ -21,15 +22,18 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Since it can't be called from PreferenceActivity class.
-        * Be careful to call getActivity() only when the fragment is attached to an activity.
-        * When the fragment is not yet attached, or was detached during the end of its lifecycle, getActivity() will return null.*/
+        /* Be careful to call getActivity() only when the fragment is attached to an activity.
+        * When the fragment is not yet attached, or was detached during the end of its lifecycle or device orientation changes,
+        * getActivity() will return null.*/
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
 
-        /* Since all fragments of Sub-screens are displayed on same Settings Activity so you have to change Activity title according
-        * to the given fragment. */
-        actionBar.setTitle(R.string.pref_facebook_title);
+        if(null != actionBar) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+            /* Since all fragments of Sub-screens are displayed on same Settings Activity so you have to change Activity title according
+            * to the given fragment. */
+            actionBar.setTitle(R.string.title_activity_settings_facebook);
+        }
 
         /*Load the preferences from an XML resource*/
         addPreferencesFromResource(R.xml.preferences_facebook);

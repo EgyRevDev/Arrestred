@@ -41,11 +41,17 @@ public class CustomListPreference extends ListPreference {
     public CustomListPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
+
+        /* Initialize ArrayList of drawables IDs. */
         drawablesResIDList = new ArrayList<Integer>();
 
         /* Take a reference to resources and set choices/icons that appear on Dialog of custom preference. */
         resources = mContext.getResources();
+
+        /* Set the internal Array List for string titles that will be displayed on the Dialog of Custom List Preference. */
         setChoicesArrayList();
+
+        /* Set the internal Array List of Drawables that will be displayed on the Dialog of Custom List Preference. */
         setDrawableResIDArrList();
     }
 
@@ -53,6 +59,7 @@ public class CustomListPreference extends ListPreference {
     protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
 
+        /* Prepares the dialog builder to be shown when the custom list preference is clicked.*/
         /* Default method, creates list of single items in the Dialog so you have to override this by
         * providing your own adapter. Check this post answer: http://goo.gl/blVv3V */
 
@@ -72,23 +79,26 @@ public class CustomListPreference extends ListPreference {
                 * But if account type was already configured before, Just Toast warning message to the user .*/
                 String title = myAdapter.getItem(index);
 
-                if (null == findPreferenceInHierarchy(SettingsActivity.KEY_PREFIX +index)) {
+                if (null == findPreferenceInHierarchy(SettingsActivity.KEY_PREFIX_TITLE +index)) {
 
-                    /* Prepare new preference to be added. */
+                    /* Prepare new custom preference to be added. Set title, key, icon and click listener. */
                     CustomPreference preference = new CustomPreference(mContext);
                     preference.setTitle(title);
-                    preference.setKey(SettingsActivity.KEY_PREFIX + index);
+                    preference.setKey(SettingsActivity.KEY_PREFIX_TITLE + index);
                     preference.setIcon(drawablesResIDList.get(index));
+
+                    /* Note that without setting click listener, the preference will not respond to user clicks. */
                     preference.setOnPreferenceClickListener(preference.getOnPreferenceClickListener());
+
                     /* Get reference to parent preference category "Account Types" to add new preference in it. */
                     PreferenceGroup preferenceCategory = ((SettingsActivity) mContext).getPreferenceCategory();
 
-                    /* Add new created preference to preference category "Account Types" */
+                    /* Add new custom preference to preference category "Account Types" */
                     if (preferenceCategory != null) {
                         preferenceCategory.addPreference(preference);
 
                         /* Add preference to list of new preferences. It will be used in case Settings
-                         * Activity is restarted. */
+                         * Activity is restarted due to device orientation ot app killing. */
                         ((SettingsActivity)mContext).getPreferencesList().add(preference);
                     }
                 }else{/* Case pressed preference has a valid previous entry in parent Preference Category. */
@@ -103,7 +113,7 @@ public class CustomListPreference extends ListPreference {
     }
 
     private class CustomArrayAdapter extends ArrayAdapter<String> {
-
+        /* Custom Array Adapter for the list of items that are displayed on the Dialog of this custom list preference. */
         public CustomArrayAdapter(Context context, int resource,
                                   int textViewResourceId, List<String> objects) {
             super(context, resource, textViewResourceId, objects);
@@ -148,7 +158,7 @@ public class CustomListPreference extends ListPreference {
         }
     }
 
-    /* Convert array of strings into ArrayList. It is passed to Adapter creation. */
+    /* Convert array of strings into ArrayList. It is passed during Adapter instantiation. */
     private void setChoicesArrayList(){
         /* Get list of text entries that will be displayed on DialogPreference. */
         String choices [] = resources.getStringArray(R.array.pref_account_types_entries);
