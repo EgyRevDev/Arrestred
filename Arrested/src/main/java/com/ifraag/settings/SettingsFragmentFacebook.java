@@ -1,6 +1,7 @@
 package com.ifraag.settings;
 
 import android.annotation.TargetApi;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -9,20 +10,28 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 
 
+import com.facebook.android.Facebook;
 import com.ifraag.arrested.R;
+import com.ifraag.arrested.SettingsActivityFacebook;
+import com.ifraag.facebookclient.FacebookClient;
 
 /* Note that PreferenceFragment class requires API level 11 but current minimum SDK is 7 so
  * I have to use unofficial android-support-v4-PreferenceFragment library project to be able to use Preference Fragment
  * on any Android API whose level is 4+ */
 public class SettingsFragmentFacebook extends PreferenceFragment {
 
-    public static Preference mPreference;
+    private Preference mPreference;
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Be careful to call getActivity() only when the fragment is attached to an activity.
+        /* Important note: if passed bundle is not null, it will contain two keys: android:preferences & android:view_state
+        * Try Set<String> set = savedInstanceState.keySet() It has no relation with the bundle of the Activity context
+        * within which PreferenceFragment is running.*/
+
+         /* Be careful to call getActivity() only when the fragment is attached to an activity.
         * When the fragment is not yet attached, or was detached during the end of its lifecycle or device orientation changes,
         * getActivity() will return null.*/
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
@@ -40,8 +49,10 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
 
         /* Set default icon to default facebook login icon */
         mPreference = findPreference("pref_facebook_account");
-        mPreference.setIcon(R.drawable.com_facebook_profile_default_icon);
-        mPreference.setTitle("Username");
+        if ( null != mPreference) {
+            updatePreferenceAttributes(FacebookClient.DEFAULT_USER_NAME,
+                    getResources().getDrawable(R.drawable.com_facebook_profile_default_icon));
+        }
 
         /* TODO: Remove, this was just for testing. */
         Preference preference2 = findPreference("pref_facebook_account_v2");
@@ -51,5 +62,15 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
         Preference preference3 = findPreference("pref_facebook_account_v3");
         preference3.setIcon(R.drawable.com_facebook_profile_picture_blank_square );
         preference3.setTitle("profile_picture_blank_square");
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void updatePreferenceAttributes(String a_userName, Drawable a_drawable){
+        mPreference.setTitle(a_userName);
+        mPreference.setIcon(a_drawable);
+    }
+
+    public Preference getPreference() {
+        return mPreference;
     }
 }

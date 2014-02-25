@@ -1,11 +1,13 @@
 package com.ifraag.arrested;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -16,6 +18,11 @@ import com.facebook.Session;
 import com.ifraag.facebookclient.FacebookClient;
 import com.ifraag.settings.SettingsFragmentFacebook;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class SettingsActivityFacebook extends ActionBarActivity {
 
     /* An instance of Facebook client. It is responsible for wrapping Facebook GRAPH API communication*/
@@ -23,6 +30,12 @@ public class SettingsActivityFacebook extends ActionBarActivity {
 
     /* An instance of Login/Logout Action Bar button. Its text title should be changed according to login state of user.*/
     MenuItem actionBarLogin;
+
+    /* An instance of Facebook Settings Fragment that is running within current Activity. It contains current user name & profile picture*/
+    SettingsFragmentFacebook settingsFragmentFacebook;
+
+    MyFBView myFacebookView;
+    private String FILE_NAME="profile_pic.png";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,20 +45,27 @@ public class SettingsActivityFacebook extends ActionBarActivity {
         /* Enable the app icon as an Up button */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        settingsFragmentFacebook = new SettingsFragmentFacebook();
         /* Add Preference Fragment to the current Activity context. */
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, new SettingsFragmentFacebook())
+                .replace(R.id.container, settingsFragmentFacebook)
                 .commit();
 
         /* An instance of FacebookView interface to implement how would my layout views change at run-time as result for
         * facebook session state changes. */
-        MyFBView myFacebookView = new MyFBView();
+        myFacebookView = new MyFBView();
 
         /* Initialize facebook client instance variable with the layout callback to be invoked upon session changes. */
         facebookClient = new FacebookClient(this, myFacebookView);
 
+        if(null == savedInstanceState){
+            loadFromSharedPreference();
+            Drawable d = loadProfilePic();
+            facebookClient.setUserProfilePicture(d);
+        }
+
         /* Activate user's facebook session. */
-        facebookClient.activateSession(getIntent().getExtras());
+        facebookClient.activateSession(/*savedInstanceState*/);
     }
 
     @Override
@@ -79,7 +99,34 @@ public class SettingsActivityFacebook extends ActionBarActivity {
         outState.putBoolean(FacebookClient.PENDING_PUBLISH_KEY,
                 facebookClient.isPendingPublishReauthorization());
 
-        Session.saveSession(facebookClient.getSession(), outState);
+        /*TODO: Not sure whether to save session or not.*/
+        //Session.saveSession(facebookClient.getSession(), outState);
+
+        /* Save username upon screen rotation */
+        outState.putString(FacebookClient.KEY_USER_NAME,
+                facebookClient.getUserName());
+
+        saveToSharedPreferences();
+
+        saveUserProfilePic(facebookClient.getUserProfilePicture());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+
+        //Session session = Session.restoreSession(this, null, facebookClient.getStatusCallback(), savedInstanceState);
+        boolean pendingPublishReauthorization = savedInstanceState.getBoolean(FacebookClient.PENDING_PUBLISH_KEY, false);
+        String userName = savedInstanceState.getString(FacebookClient.KEY_USER_NAME);
+
+        //facebookClient.setSession(session);
+        facebookClient.setPendingPublishReauthorization(pendingPublishReauthorization);
+        facebookClient.setUserName(userName);
+
+        Drawable d = loadProfilePic();
+        facebookClient.setUserProfilePicture(d);
+
+        myFacebookView.updateLayoutViews();
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -89,6 +136,15 @@ public class SettingsActivityFacebook extends ActionBarActivity {
         getMenuInflater().inflate(R.menu.settings_activity_child_fb, menu);
         actionBarLogin = menu.findItem(R.id.action_login);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if(facebookClient.isUserLoggedIn()){
+            actionBarLogin.setTitle("logout");
+        }else
+            actionBarLogin.setTitle("login");
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -145,14 +201,6 @@ public class SettingsActivityFacebook extends ActionBarActivity {
         startActivity(intent);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void editPreferenceEntry (String a_userName, Drawable a_drawable){
-        if (null != a_userName)
-            SettingsFragmentFacebook.mPreference.setTitle(a_userName);
-
-        if(null != a_drawable)
-            SettingsFragmentFacebook.mPreference.setIcon(a_drawable);
-    }
 
     /* Create an instance from FacebookView interface implementing updateLayoutViews method that should be called whenever it is
      * required to update the view contents of your layout. In fact, it will be called from facebook session state change callback. */
@@ -166,15 +214,91 @@ public class SettingsActivityFacebook extends ActionBarActivity {
                 Log.i("MyFBClient", "State of session is " + session.getState());
 
                 /* Check if user has logged in successfully to FB*/
-                if(facebookClient.isUserLoggedIn()){
-                    /* Change text of Login to Logout, Set username and profile picture in the preference. */
-                    actionBarLogin.setTitle("logout");
-                    editPreferenceEntry(facebookClient.getUserName(), facebookClient.getUserProfilePicture());
+                if(facebookClient.isUserLoggedIn() &&
+                        null != settingsFragmentFacebook.getPreference()){
+
+                    settingsFragmentFacebook.updatePreferenceAttributes(facebookClient.getUserName(),
+                            facebookClient.getUserProfilePicture());
+
+                        /* Check the login state of the user to update the title of the corresponding action button. */
+                        if(null != actionBarLogin)
+                            actionBarLogin.setTitle("logout");
+
                 }
-            } else {
+            } else { /*Case Facebook Session is closed.*/
                 Log.i("MyFBClient","Session is closed");
-                //actionBarLogin.setTitle("login");
+                if(null != actionBarLogin)
+                    actionBarLogin.setTitle("login");
             }
         }
+    }
+
+    private void saveToSharedPreferences() {
+        /* Get reference to shared preferences file whose name is typical to your application package name.
+        * It is shared among your application activities but not accessible to other application (private mode)*/
+        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+
+        /* Get an instance of editor to the file of shared preferences. */
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        /* Save Facebook session parameters; username and boolean flag indicating if pending publish is requested  */
+        editor.putBoolean(FacebookClient.PENDING_PUBLISH_KEY,
+                facebookClient.isPendingPublishReauthorization());
+
+        editor.putString(FacebookClient.KEY_USER_NAME,
+                facebookClient.getUserName());
+
+        /* Finally commit all changes that you have made to the shared preferences file. */
+        editor.commit();
+    }
+
+    private void loadFromSharedPreference() {
+        /* Get reference to shared preferences file whose name is typical to your application package name.
+        * It is shared among your application activities but not accessible to other application (private mode)*/
+        SharedPreferences sharedPreferences = getSharedPreferences(getPackageName(), MODE_PRIVATE);
+
+        boolean pendingPublishReauthorization = sharedPreferences.getBoolean(FacebookClient.PENDING_PUBLISH_KEY,false);
+        String username = sharedPreferences.getString(FacebookClient.KEY_USER_NAME, FacebookClient.DEFAULT_USER_NAME);
+
+        facebookClient.setPendingPublishReauthorization(pendingPublishReauthorization);
+        facebookClient.setUserName(username);
+    }
+
+    private void saveUserProfilePic(Drawable drawable){
+
+        Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] b = baos.toByteArray();
+
+        try {
+            File out = new File(getExternalFilesDir(
+                    Environment.DIRECTORY_PICTURES), FILE_NAME);
+            out.setWritable(true);
+            FileOutputStream fileOutStream = new FileOutputStream(out);
+
+            fileOutStream.write(b);  //b is byte array
+            //(used if you have your picture downloaded
+            // from the *Web* or got it from the *devices camera*)
+            //otherwise this technique is useless
+            fileOutStream.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    private Drawable loadProfilePic(){
+
+        Drawable drawable;
+        if(facebookClient.isUserLoggedIn()) {
+            //File filePath = getFileStreamPath(FILE_NAME);
+            File in = new File(getExternalFilesDir(
+                    Environment.DIRECTORY_PICTURES), FILE_NAME);
+            drawable =  Drawable.createFromPath(in.toString());
+        }else{
+            drawable =  getResources().getDrawable(R.drawable.com_facebook_profile_default_icon);
+        }
+
+        return drawable;
     }
 }

@@ -31,6 +31,7 @@ import com.facebook.SessionState;
 import com.facebook.Settings;
 import com.facebook.model.GraphPlace;
 import com.facebook.model.GraphUser;
+import com.ifraag.arrested.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,13 +46,18 @@ import java.util.List;
 
 public class FacebookClient {
 
-    /* Current Facebook Android SDK version is 3.6 and this is updated one till today. */
+    /* Current Facebook Android SDK version is 3.6 and this is updated version till today. */
 
     /* String that holds a facebook permission to post on wall */
     private static final List<String> PERMISSIONS = Arrays.asList("publish_actions", "user_location", "user_checkins", "user_status");
 
     /* String to save pendingPublishReauthorization flag in bundle */
     public static final String PENDING_PUBLISH_KEY = "pendingPublishReauthorization";
+
+    public static final String DEFAULT_USER_NAME = "Username";
+
+    /* Key string for name of facebook user. It will be used during screen rotation or app restarting*/
+    public static final String KEY_USER_NAME = "fb_username";
 
     /* To get publish permission, you have to open session for read first then re-authorize your application to ask for
     * publish permission. This flag indicates whether we are in the middle of pending publish permission re-authorization or not. */
@@ -77,9 +83,6 @@ public class FacebookClient {
 
     /* An instance of location object that represents current geographical information (Latitude & Longitude) of the user. */
     private Location myLocation;
-
-    /* Boolean flag indicates whether user has logged in to Facebook or not. */
-    private boolean hasUserLoggedIn;
 
     private String userName;
 
@@ -111,34 +114,36 @@ public class FacebookClient {
         /* TODO: You may get use of Settings.getSdkVersion for future use. */
         Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
 
-        hasUserLoggedIn = false;
+        userName = DEFAULT_USER_NAME;
+        userProfilePicture  = a_context.getResources().getDrawable(R.drawable.com_facebook_profile_default_icon);
     }
 
     /* Logger tag that is used within current class. */
     private static final String FB_CLIENT_TAG = "MyFBClient";
 
-    public void activateSession(Bundle savedInstanceState) {
+    public void activateSession(/*Bundle savedInstanceState*/) {
 
         session = Session.getActiveSession();
         if (session == null) {
             Log.i(FB_CLIENT_TAG, "No active Session");
 
             /* Check if session or pending flag were saved inside the activity bundle */
-            if (savedInstanceState != null) {
+            /*if (savedInstanceState != null) {
                 session = Session.restoreSession(currentContext, null, statusCallback, savedInstanceState);
                 pendingPublishReauthorization = savedInstanceState.getBoolean(PENDING_PUBLISH_KEY, false);
-            }
+                userName = savedInstanceState.getString(KEY_USER_NAME);
+            }*/
 
             /* Create a new session in case null session was saved inside the activity bundle. */
-            if (session == null) {
+            //if (session == null) {
                 session = new Session(currentContext);
-            } else {
+            //} else {
                 /* TODO: Now a valid session object is obtained but are its access tokens still alive or not?
                 * Perhaps, I can close the session after first use by the user to obtain facebook permissions so that
                 * I will not be worried about current else branch because in the 2nd time of user use to my app, a new
                 * session will be created to publish his story. */
-                Log.i(FB_CLIENT_TAG, "An old session is restored successfully");
-            }
+                //Log.i(FB_CLIENT_TAG, "An old session is restored successfully");
+            //}
 
             /* Set new session to be the active session. */
             Session.setActiveSession(session);
@@ -174,8 +179,7 @@ public class FacebookClient {
                         userName = user.getName();
                         Log.i(FB_CLIENT_TAG, " Current name is " + userName);
                         Toast.makeText(currentContext,userName +" has logged to Facebook", Toast.LENGTH_SHORT).show();
-                        hasUserLoggedIn = true;
-                        Log.i(FB_CLIENT_TAG, " Current Username is " + user.getUsername());
+                        //Log.i(FB_CLIENT_TAG, " Current Username is " + user.getUsername());
                         new ProfilePic().execute(user.getId());
                         facebookView.updateLayoutViews();
                     }
@@ -497,8 +501,11 @@ public class FacebookClient {
     }
 
     public boolean isUserLoggedIn(){
+        return !userName.equals(DEFAULT_USER_NAME);
+    }
 
-        return hasUserLoggedIn;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getUserName() {
@@ -549,6 +556,10 @@ public class FacebookClient {
 
     public Drawable getUserProfilePicture() {
         return userProfilePicture;
+    }
+
+    public void setUserProfilePicture(Drawable drawable) {
+        userProfilePicture = drawable;
     }
      /* TODO: Check this link again for the guidelines of permissions.
     * https://developers.facebook.com/docs/facebook-login/permissions */

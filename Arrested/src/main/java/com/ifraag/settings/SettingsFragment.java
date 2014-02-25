@@ -21,7 +21,11 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Be careful to call getActivity() only when the fragment is attached to an activity.
+        /* Important note: if passed bundle is not null, it will contain two keys: android:preferences & android:view_state
+        * Try Set<String> set = savedInstanceState.keySet() It has no relation with the bundle of the Activity context
+        * within which PreferenceFragment is running.*/
+
+         /* Be careful to call getActivity() only when the fragment is attached to an activity.
         * When the fragment is not yet attached, or was detached during the end of its lifecycle or device orientation changes,
         * getActivity() will return null.*/
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
