@@ -544,6 +544,7 @@ public class FacebookClient {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+            bitmap = Bitmap.createScaledBitmap(bitmap,120,120,false);
             Drawable drawable = new BitmapDrawable(currentContext.getResources(), bitmap);
 
             /* Set instance variable that will be used to reference drawable object. */

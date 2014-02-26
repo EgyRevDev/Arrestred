@@ -3,6 +3,7 @@ package com.ifraag.arrested;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -268,6 +269,7 @@ public class SettingsActivityFacebook extends ActionBarActivity {
 
         Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        /* Save bitmap to PNG file as sequence of bytes. */
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] b = baos.toByteArray();
 
@@ -291,10 +293,12 @@ public class SettingsActivityFacebook extends ActionBarActivity {
 
         Drawable drawable;
         if(facebookClient.isUserLoggedIn()) {
-            //File filePath = getFileStreamPath(FILE_NAME);
             File in = new File(getExternalFilesDir(
                     Environment.DIRECTORY_PICTURES), FILE_NAME);
-            drawable =  Drawable.createFromPath(in.toString());
+            Bitmap bitmap = BitmapFactory.decodeFile(in.toString());
+            bitmap = Bitmap.createScaledBitmap(bitmap,120,120,false);
+            drawable =  new BitmapDrawable(getResources(),bitmap);
+
         }else{
             drawable =  getResources().getDrawable(R.drawable.com_facebook_profile_default_icon);
         }
