@@ -224,6 +224,9 @@ public class SettingsActivity extends ActionBarActivity {
 
     private void restartParentActivity() {
 
+        /* Since onSaveInstanceState is not called if Back/Up button is pressed, you have to save dynamic preferences
+        * in shared preferences explicitly. */
+        saveToSharedPreferences();
         Intent intent = new Intent(this, MainActivity.class);
 
         /* With this flag, if the activity you're starting already exists in the current task,

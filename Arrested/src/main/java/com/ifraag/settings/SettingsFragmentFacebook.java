@@ -52,6 +52,13 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
         if ( null != mPreference) {
             updatePreferenceAttributes(FacebookClient.DEFAULT_USER_NAME,
                     getResources().getDrawable(R.drawable.com_facebook_profile_default_icon));
+
+            /* Following line must be added to handle corner case that user has logged in Facebook Settings Screen
+            * then, it gets back/up to Settings Screen and finally it gets into Facebook Settings again.
+            * In this case preferences takes time to be loaded hence updateLayoutViews method will not update
+            * Displayed username and profile picture since mPreference was still null.
+            * To fix this problem, simply call the callback after being sure that preferences have been loaded.*/
+            SettingsActivityFacebook.myFacebookView.updateLayoutViews();
         }
 
         /* TODO: Remove, this was just for testing. */
@@ -66,8 +73,10 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void updatePreferenceAttributes(String a_userName, Drawable a_drawable){
-        mPreference.setTitle(a_userName);
-        mPreference.setIcon(a_drawable);
+        if(null != mPreference) {
+            mPreference.setTitle(a_userName);
+            mPreference.setIcon(a_drawable);
+        }
     }
 
     public Preference getPreference() {

@@ -8,7 +8,7 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
-    <item android:id="@+id/action_login"
+    <item android:id="@+id/action_login_logout"
         android:title="@string/action_login"
         android:icon="@drawable/ic_action_person"
         app:showAsAction="ifRoom|withText"/>

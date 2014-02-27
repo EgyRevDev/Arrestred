@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
@@ -30,12 +29,12 @@ public class SettingsActivityFacebook extends ActionBarActivity {
     FacebookClient facebookClient;
 
     /* An instance of Login/Logout Action Bar button. Its text title should be changed according to login state of user.*/
-    MenuItem actionBarLogin;
+    MenuItem actionBarLoginLogout;
 
     /* An instance of Facebook Settings Fragment that is running within current Activity. It contains current user name & profile picture*/
     SettingsFragmentFacebook settingsFragmentFacebook;
 
-    MyFBView myFacebookView;
+    public static MyFBView myFacebookView;
     private String FILE_NAME="profile_pic.png";
 
     @Override
@@ -135,16 +134,16 @@ public class SettingsActivityFacebook extends ActionBarActivity {
 
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.settings_activity_child_fb, menu);
-        actionBarLogin = menu.findItem(R.id.action_login);
+        actionBarLoginLogout = menu.findItem(R.id.action_login_logout);
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         if(facebookClient.isUserLoggedIn()){
-            actionBarLogin.setTitle("logout");
+            actionBarLoginLogout.setTitle("logout");
         }else
-            actionBarLogin.setTitle("login");
+            actionBarLoginLogout.setTitle("login");
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -166,13 +165,12 @@ public class SettingsActivityFacebook extends ActionBarActivity {
             return true;
         }
 
-        if(id == R.id.action_login) {
+        if(id == R.id.action_login_logout) {
 
             if (item.getTitle().toString().equalsIgnoreCase("login")){
                 facebookClient.getUserProfileInformation();
             }else if (item.getTitle().toString().equalsIgnoreCase("logout")){
-                /* TODO: Add Logout method in Facebook client. */
-                Toast.makeText(this,"LOGOUT TBD",Toast.LENGTH_SHORT).show();
+                facebookClient.logout();
             }
         }
 
@@ -186,11 +184,17 @@ public class SettingsActivityFacebook extends ActionBarActivity {
     }
 
     private void restartParentActivity () {
+
+       /* Since onSaveInstanceState is not called if Back/Up button is pressed, you have to save dynamic preferences
+        * in shared preferences explicitly. */
+        saveToSharedPreferences();
+        saveUserProfilePic(facebookClient.getUserProfilePicture());
+
         Intent intent = new Intent(this, SettingsActivity.class);
 
         /* Since Settings Activity has an intent filter for "preferences" scheme in AndroidManifest file, then you have to
          * set Uri before starting activity otherwise Settings Activity will not be started and an Exception is triggered. */
-        intent.setData(Uri.parse("preferences://activity1"));
+        intent.setAction("com.ifraag.arrested.action.VIEW");
 
         /* With this flag, if the activity you're starting already exists in the current task,
          * then all activities on top of it are destroyed and it is brought to the front.
@@ -205,7 +209,7 @@ public class SettingsActivityFacebook extends ActionBarActivity {
 
     /* Create an instance from FacebookView interface implementing updateLayoutViews method that should be called whenever it is
      * required to update the view contents of your layout. In fact, it will be called from facebook session state change callback. */
-    private class MyFBView implements FacebookClient.FacebookView {
+    public class MyFBView implements FacebookClient.FacebookView {
         @Override
         public void updateLayoutViews() {
             /* Do nothing in the UI when the session status changes. Everything will be sent without any need to user interaction */
@@ -215,21 +219,23 @@ public class SettingsActivityFacebook extends ActionBarActivity {
                 Log.i("MyFBClient", "State of session is " + session.getState());
 
                 /* Check if user has logged in successfully to FB*/
-                if(facebookClient.isUserLoggedIn() &&
-                        null != settingsFragmentFacebook.getPreference()){
+                if(facebookClient.isUserLoggedIn() /*&&
+                        null != settingsFragmentFacebook.getPreference()*/){
 
                     settingsFragmentFacebook.updatePreferenceAttributes(facebookClient.getUserName(),
                             facebookClient.getUserProfilePicture());
 
                         /* Check the login state of the user to update the title of the corresponding action button. */
-                        if(null != actionBarLogin)
-                            actionBarLogin.setTitle("logout");
+                        if(null != actionBarLoginLogout)
+                            actionBarLoginLogout.setTitle("logout");
 
                 }
             } else { /*Case Facebook Session is closed.*/
                 Log.i("MyFBClient","Session is closed");
-                if(null != actionBarLogin)
-                    actionBarLogin.setTitle("login");
+                settingsFragmentFacebook.updatePreferenceAttributes(facebookClient.getUserName(),
+                        facebookClient.getUserProfilePicture());
+                if(null != actionBarLoginLogout)
+                    actionBarLoginLogout.setTitle("login");
             }
         }
     }

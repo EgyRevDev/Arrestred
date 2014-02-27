@@ -126,37 +126,15 @@ public class FacebookClient {
         session = Session.getActiveSession();
         if (session == null) {
             Log.i(FB_CLIENT_TAG, "No active Session");
-
-            /* Check if session or pending flag were saved inside the activity bundle */
-            /*if (savedInstanceState != null) {
-                session = Session.restoreSession(currentContext, null, statusCallback, savedInstanceState);
-                pendingPublishReauthorization = savedInstanceState.getBoolean(PENDING_PUBLISH_KEY, false);
-                userName = savedInstanceState.getString(KEY_USER_NAME);
-            }*/
-
-            /* Create a new session in case null session was saved inside the activity bundle. */
-            //if (session == null) {
-                session = new Session(currentContext);
-            //} else {
-                /* TODO: Now a valid session object is obtained but are its access tokens still alive or not?
-                * Perhaps, I can close the session after first use by the user to obtain facebook permissions so that
-                * I will not be worried about current else branch because in the 2nd time of user use to my app, a new
-                * session will be created to publish his story. */
-                //Log.i(FB_CLIENT_TAG, "An old session is restored successfully");
-            //}
-
-            /* Set new session to be the active session. */
-            Session.setActiveSession(session);
-            Log.i(FB_CLIENT_TAG, "Active Session is set");
-
-            Log.i(FB_CLIENT_TAG, "State of session is " + session.getState());
-            /* Check if the Session has not yet been opened and has a cached token.*/
-            if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED) ||
-                    session.getState().equals(SessionState.CREATED)) {
-
-                Log.i(FB_CLIENT_TAG, "Open a session for read");
-                session.openForRead(new Session.OpenRequest((Activity) currentContext).setCallback(statusCallback));
-                Log.i(FB_CLIENT_TAG, "State of session is " + session.getState());
+            openSession();
+        }else { // case session instance variable is not null
+            /* Make sure that current session state is opened. */
+            if (session.getState().equals(SessionState.CLOSED)
+                    || session.getState().equals(SessionState.CLOSED_LOGIN_FAILED)){
+                /*Sessions can only be opened once. When a session is closed, it cannot be re-opened.
+                Instead, a new session should be created. Typical apps will only require one active session at any time.
+                The Facebook SDK provides static active session methods that take care of opening new session instances.*/
+                openSession();
             }
         }
 
@@ -164,10 +142,47 @@ public class FacebookClient {
         facebookView.updateLayoutViews();
     }
 
+    private void openSession(){
+                    /* Check if session or pending flag were saved inside the activity bundle */
+            /*if (savedInstanceState != null) {
+                session = Session.restoreSession(currentContext, null, statusCallback, savedInstanceState);
+                pendingPublishReauthorization = savedInstanceState.getBoolean(PENDING_PUBLISH_KEY, false);
+                userName = savedInstanceState.getString(KEY_USER_NAME);
+            }*/
+
+            /* Create a new session in case null session was saved inside the activity bundle. */
+        //if (session == null) {
+        session = new Session(currentContext);
+        //} else {
+                /* TODO: Now a valid session object is obtained but are its access tokens still alive or not?
+                * Perhaps, I can close the session after first use by the user to obtain facebook permissions so that
+                * I will not be worried about current else branch because in the 2nd time of user use to my app, a new
+                * session will be created to publish his story. */
+        //Log.i(FB_CLIENT_TAG, "An old session is restored successfully");
+        //}
+
+            /* Set new session to be the active session. */
+        Session.setActiveSession(session);
+        Log.i(FB_CLIENT_TAG, "Active Session is set");
+
+        Log.i(FB_CLIENT_TAG, "State of session is " + session.getState());
+            /* Check if the Session has not yet been opened and has a cached token.*/
+//            if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED) ||
+//                    session.getState().equals(SessionState.CREATED)) {
+
+                /*Sessions can only be opened once. When a session is closed, it cannot be re-opened.
+                Instead, a new session should be created. Typical apps will only require one active session at any time.
+                The Facebook SDK provides static active session methods that take care of opening new session instances.*/
+        Log.i(FB_CLIENT_TAG, "Open a session for read");
+        session.openForRead(new Session.OpenRequest((Activity) currentContext).setCallback(statusCallback));
+        Log.i(FB_CLIENT_TAG, "State of session is " + session.getState());
+//            }
+
+    }
+
     public void getUserProfileInformation() {
 
-        /* TODO: make sure that the session state is opened */
-
+        activateSession();
         /*Make an API call to get user data and define a new callback to handle the response. */
         Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
             @Override
@@ -185,6 +200,8 @@ public class FacebookClient {
                     }
                 }
                 if (response.getError() != null) {
+                    /*TODO: Handle two different errors; first one is for Connection Error while second one is session closure.
+                     * Please check what is returned from response.getError()*/
                     Log.i(FB_CLIENT_TAG, " an error occurred while getting Facebook API response");
                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(currentContext)
                             .setTitle("Connection Error")
@@ -199,6 +216,19 @@ public class FacebookClient {
         This improves performance and ensures compatibility with Android 3.0+ */
         request.executeAsync();
     }
+
+    public void logout() {
+        /* Get active session then close and clear all token information.*/
+        /*session = Session.getActiveSession();*/
+        /*session.closeAndClearTokenInformation();*/
+        session.close();
+
+        userName = DEFAULT_USER_NAME;
+        userProfilePicture = currentContext.getResources().getDrawable(R.drawable.com_facebook_profile_default_icon);
+
+        //facebookView.updateLayoutViews();
+    }
+
 
     private void requestPublishPermission() {
 
