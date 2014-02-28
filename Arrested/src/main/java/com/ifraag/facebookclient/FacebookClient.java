@@ -84,9 +84,12 @@ public class FacebookClient {
     /* An instance of location object that represents current geographical information (Latitude & Longitude) of the user. */
     private Location myLocation;
 
-    private String userName;
+    /* An instance holds name of facebook user.*/
+    private String name;
 
+    /* An instance holds profile picture of facebook user. */
     private Drawable userProfilePicture;
+
     /* Constructor of FacebookClient.*/
     public FacebookClient(Context a_context, FacebookView a_FacebookView ) {
 
@@ -114,14 +117,15 @@ public class FacebookClient {
         /* TODO: You may get use of Settings.getSdkVersion for future use. */
         Settings.addLoggingBehavior(LoggingBehavior.INCLUDE_ACCESS_TOKENS);
 
-        userName = DEFAULT_USER_NAME;
+        /* Set default username and profile picture for any facebook client. */
+        name = DEFAULT_USER_NAME;
         userProfilePicture  = a_context.getResources().getDrawable(R.drawable.com_facebook_profile_default_icon);
     }
 
     /* Logger tag that is used within current class. */
     private static final String FB_CLIENT_TAG = "MyFBClient";
 
-    public void activateSession(/*Bundle savedInstanceState*/) {
+    public void activateSession() {
 
         session = Session.getActiveSession();
         if (session == null) {
@@ -138,64 +142,51 @@ public class FacebookClient {
             }
         }
 
-        /* Update your application layout views after logging in */
+        /* Update your application layout views.*/
         facebookView.updateLayoutViews();
     }
 
     private void openSession(){
-                    /* Check if session or pending flag were saved inside the activity bundle */
-            /*if (savedInstanceState != null) {
-                session = Session.restoreSession(currentContext, null, statusCallback, savedInstanceState);
-                pendingPublishReauthorization = savedInstanceState.getBoolean(PENDING_PUBLISH_KEY, false);
-                userName = savedInstanceState.getString(KEY_USER_NAME);
-            }*/
 
-            /* Create a new session in case null session was saved inside the activity bundle. */
-        //if (session == null) {
+        /* Create a new session */
         session = new Session(currentContext);
-        //} else {
-                /* TODO: Now a valid session object is obtained but are its access tokens still alive or not?
-                * Perhaps, I can close the session after first use by the user to obtain facebook permissions so that
-                * I will not be worried about current else branch because in the 2nd time of user use to my app, a new
-                * session will be created to publish his story. */
-        //Log.i(FB_CLIENT_TAG, "An old session is restored successfully");
-        //}
 
-            /* Set new session to be the active session. */
+        /* Set new session to be the active session. */
         Session.setActiveSession(session);
         Log.i(FB_CLIENT_TAG, "Active Session is set");
 
-        Log.i(FB_CLIENT_TAG, "State of session is " + session.getState());
-            /* Check if the Session has not yet been opened and has a cached token.*/
-//            if (session.getState().equals(SessionState.CREATED_TOKEN_LOADED) ||
-//                    session.getState().equals(SessionState.CREATED)) {
-
-                /*Sessions can only be opened once. When a session is closed, it cannot be re-opened.
-                Instead, a new session should be created. Typical apps will only require one active session at any time.
-                The Facebook SDK provides static active session methods that take care of opening new session instances.*/
+        /*Sessions can only be opened once. When a session is closed, it cannot be re-opened.
+        Instead, a new session should be created. Typical apps will only require one active session at any time.
+        The Facebook SDK provides static active session methods that take care of opening new session instances.*/
         Log.i(FB_CLIENT_TAG, "Open a session for read");
-        session.openForRead(new Session.OpenRequest((Activity) currentContext).setCallback(statusCallback));
-        Log.i(FB_CLIENT_TAG, "State of session is " + session.getState());
-//            }
 
+        /* Open session for read.*/
+        session.openForRead(new Session.OpenRequest((Activity) currentContext).setCallback(statusCallback));
     }
 
     public void getUserProfileInformation() {
 
+        /* This must be added in case login is required after logout because when session is closed, it cannot be re-opened.*/
         activateSession();
+
         /*Make an API call to get user data and define a new callback to handle the response. */
         Request request = Request.newMeRequest(session, new Request.GraphUserCallback() {
             @Override
             public void onCompleted(GraphUser user, Response response) {
 
-                // If the response is successful and user information is not null, get the user name.
+                /*If the response is successful and user information is not null, get the user name and profile picture then update your Settings Views.*/
                 if (session == Session.getActiveSession()) {
                     if (user != null) {
-                        userName = user.getName();
-                        Log.i(FB_CLIENT_TAG, " Current name is " + userName);
-                        Toast.makeText(currentContext,userName +" has logged to Facebook", Toast.LENGTH_SHORT).show();
+                        /* Get user name*/
+                        name = user.getName();
+                        Log.i(FB_CLIENT_TAG, " Current name is " + name);
+                        Toast.makeText(currentContext, name +" has logged to Facebook", Toast.LENGTH_SHORT).show();
                         //Log.i(FB_CLIENT_TAG, " Current Username is " + user.getUsername());
+
+                        /* Get user profile picture. */
                         new ProfilePic().execute(user.getId());
+
+                        /* Update your views with the obtained user's name and profile picture. */
                         facebookView.updateLayoutViews();
                     }
                 }
@@ -218,17 +209,17 @@ public class FacebookClient {
     }
 
     public void logout() {
-        /* Get active session then close and clear all token information.*/
-        /*session = Session.getActiveSession();*/
+        /* close and clear all token information.*/
         /*session.closeAndClearTokenInformation();*/
         session.close();
 
-        userName = DEFAULT_USER_NAME;
+        /* Reset user name and profile picture. */
+        name = DEFAULT_USER_NAME;
         userProfilePicture = currentContext.getResources().getDrawable(R.drawable.com_facebook_profile_default_icon);
 
+        /* You needn't invoke this method explicitly because it will be called once facebook session status is changes.*/
         //facebookView.updateLayoutViews();
     }
-
 
     private void requestPublishPermission() {
 
@@ -531,15 +522,15 @@ public class FacebookClient {
     }
 
     public boolean isUserLoggedIn(){
-        return !userName.equals(DEFAULT_USER_NAME);
+        return !name.equals(DEFAULT_USER_NAME);
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.name = userName;
     }
 
     public String getUserName() {
-        return userName;
+        return name;
     }
 
     /* Class to obtain user profile picture in Drawable format, It takes facebook user id as an input*/
@@ -547,7 +538,6 @@ public class FacebookClient {
 
         private final String URL_PREFIX = "http://graph.facebook.com/";
         private final String URL_SUFFIX = "/picture?style=large";
-        private final String SRC_NAME = "image";
 
         @Override
         protected Bitmap doInBackground(String... params) {

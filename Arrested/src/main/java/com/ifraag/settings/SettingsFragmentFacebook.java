@@ -73,12 +73,14 @@ public class SettingsFragmentFacebook extends PreferenceFragment {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void updatePreferenceAttributes(String a_userName, Drawable a_drawable){
+        /* Because facebook callback updating views is called, Sometimes current method is called before loading preference fragment.*/
         if(null != mPreference) {
             mPreference.setTitle(a_userName);
             mPreference.setIcon(a_drawable);
         }
     }
 
+    /* Getter, is mainly used within facebook callback updating views to set corresponding icon,title of the preference.*/
     public Preference getPreference() {
         return mPreference;
     }
