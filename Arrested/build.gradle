@@ -37,4 +37,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.0.1'
     compile project(':libraries:facebook')
     compile project(':libraries:android-support-v4-preferencefragment')
+    compile 'com.google.android.gms:play-services:4.0.30'
 }

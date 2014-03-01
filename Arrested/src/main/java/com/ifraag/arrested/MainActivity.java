@@ -1,9 +1,15 @@
 package com.ifraag.arrested;
 
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.net.Uri;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -25,11 +31,17 @@ import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.ifraag.location.MyLocationManager;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
+
+    private static final String TAG="MainActivity";
+    public static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+    private final String KEY_PREF_UPDATE_REQUIRED="key_update_required";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -45,6 +57,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      * The {@link ViewPager} that will host the section contents.
      */
     ViewPager mViewPager;
+
+    private MyLocationManager mLocationManager;
+
+    // Open the shared preferences
+    SharedPreferences mPrefs;
+
+    // Get a SharedPreferences editor
+    SharedPreferences.Editor mEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +104,87 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setText(mSectionsPagerAdapter.getPageTitle(i))
                             .setTabListener(this));
         }
+
+        mPrefs = getSharedPreferences(getPackageName(),Context.MODE_PRIVATE);
+        mEditor = mPrefs.edit();
+        /* You should create the location client in onCreate(), then connect it in onStart(), Disconnect the client in onStop() to save
+        * battery power. */
+        mLocationManager = new MyLocationManager(this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        /* you should always check that the APK is installed before you attempt to connect to Location Services. */
+        if(mLocationManager.isGooglePlayServicesAvailable()){
+
+            /* Following this pattern of connection and disconnection helps save battery power */
+            mLocationManager.getLocationClient().connect();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /*
+         * Get any previous setting for location updates
+         * Gets "false" if an error occurs
+         */
+        if (mPrefs.contains(KEY_PREF_UPDATE_REQUIRED)) {
+            mLocationManager.setUpdatesRequested(
+                    mPrefs.getBoolean(KEY_PREF_UPDATE_REQUIRED, false));
+        } else { // Otherwise, turn off location updates
+            mEditor.putBoolean(KEY_PREF_UPDATE_REQUIRED, false);
+            mEditor.commit();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        // Save the current setting for updates
+        mEditor.putBoolean(KEY_PREF_UPDATE_REQUIRED, mLocationManager.isUpdatesRequested());
+        mEditor.commit();
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+
+        /*If the client is connected*/
+        if (mLocationManager.getLocationClient().isConnected()) {
+
+            /* Remove location updates for a listener.*/
+            mLocationManager.getLocationClient().removeLocationUpdates(
+                    mLocationManager.getLocationListener()
+            );
+        }
+
+        /* Following this pattern of connection and disconnection helps save battery power */
+        mLocationManager.getLocationClient().disconnect();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case CONNECTION_FAILURE_RESOLUTION_REQUEST :
+                /* If the result code is Activity.RESULT_OK, try to connect again */
+                switch (resultCode) {
+                    case Activity.RESULT_OK :
+                         mLocationManager.getLocationClient().connect();
+                        /* TODO: You will encounter an exception because of trying to get user location while client is not connected to Service yet*/
+                        Location loc = mLocationManager.getUserLocation();
+                        Log.d(TAG, "Location information is\n"+"Latitude:"+loc.getLatitude()+"\nLongitude:"+loc.getLongitude()+"\n");
+                        break;
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode,resultCode,data);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -101,12 +200,38 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        final Context context = this;
         /* Case Send action button is pressed. */
         if (id == R.id.action_send){
-            Toast.makeText(this,"Send is Pressed",Toast.LENGTH_SHORT).show();
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
+                    .setTitle(getResources().getString(R.string.warn_dialg_send_title))
+                    .setMessage(getResources().getString(R.string.warn_dialg_send_msg))
+                    .setNegativeButton(getResources().getString(R.string.warn_dailog_send_negative), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            /* Do nothing upon sending cancellation */
+                            Toast.makeText(getApplicationContext(),"Cancel is chosen", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setPositiveButton(getResources().getString(R.string.warn_dailog_send_positive), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Toast.makeText(getApplicationContext(),"Send is chosen", Toast.LENGTH_SHORT).show();
 
+                            /*Location loc = mLocationManager.getUserLocation();
+                            Log.d(TAG, "Location information is\n"+"Latitude:"+loc.getLatitude()+"\nLongitude:"+loc.getLongitude()+"\n");*/
 
+                            if(mLocationManager.getLocationClient().isConnected()){
+
+                                mLocationManager.getLocationClient().requestLocationUpdates(
+                                        mLocationManager.getLocationRequest(),
+                                        mLocationManager.getLocationListener());
+                            }
+                        }
+                    })
+                    .setIcon(R.drawable.ic_action_warning);
+
+            alertDialog.show();
         }
 
         /* Case Settings button is pressed. */

@@ -63,16 +63,25 @@
         <item name="pref_gmail">3</item>
     </string-array>
 
+    <!-- Warning Toast message that will show up if user tries to add same account type twice. -->
     <string name="warn_msg_part_1">يمكن تسجيل حساب</string>
     <string name="warn_msg_part_2">واحدا فقط</string>
     <string name="action_login">Login</string>
     <string name="action_like">Like</string>
 
+    <!-- Titles of Action Provides sub-menus that will show up to the user. -->
     <string name="no_mil_trials">صفحة لا للمحاكمات العسكرية</string>
     <string name="ifraag">صفحة إفراج</string>
     <string name="fdep">صفحة جبهة الدفاع عن متظاهري مصر</string>
 
+    <!-- Dynamic resource IDs for icons of facebook pages that user will like -->
     <item type="id" name="menu_id_no_mil_trials"/>
     <item type="id" name="menu_id_ifraag"/>
     <item type="id" name="menu_id_fdep"/>
+
+    <!-- Title and Message body for warning dialog for sending arrested message for phones and social accounts-->
+    <string name="warn_dialg_send_title">بلاغ بالقبض عليك</string>
+    <string name="warn_dialg_send_msg">أنت الآن ستقوم بإرسال البلاغ لكل أرقام الهواتف المسجلة و على حسابات مواقع التواصل الخاصة بك</string>
+    <string name="warn_dailog_send_negative">إلغاء</string>
+    <string name="warn_dailog_send_positive">إرسل</string>
 </resources>
