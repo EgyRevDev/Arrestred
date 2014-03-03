@@ -28,8 +28,8 @@ public class MyLocationManager implements
     private static final String TAG = "MyLocationManager";
 
     /* Define Cairo Latitude & Longitude */
-    private static final double DEFAULT_LATITUDE=30.0380279;
-    private static final double DEFAULT_LONGITUDE=31.2405339;
+    /*private static final double DEFAULT_LATITUDE=30.0380279;
+    private static final double DEFAULT_LONGITUDE=31.2405339;*/
 
     /*Milliseconds per second*/
     private static final int MILLISECONDS_PER_SECOND = 1000;
@@ -42,6 +42,11 @@ public class MyLocationManager implements
     /*A fast frequency ceiling in milliseconds*/
     private static final long FASTEST_INTERVAL = MILLISECONDS_PER_SECOND * FASTEST_INTERVAL_IN_SECONDS;
 
+    /* Minimum duration between requests is 5 min, hence in 1 hour, 12 update Requests are sent
+    * Accordingly 100 update request will finish in about 8.3 hours. */
+    private static final int MAX_NUM_OF_REQ = 5;
+
+    /* Activity context within which location manager is running. */
     private Context mContext;
 
     /* An instance of location client that connects to Google Play Services API */
@@ -53,9 +58,14 @@ public class MyLocationManager implements
     /* Coordinates of current location, they are obtained by GPS/WiFi location sensors in user's phone */
     private Location mLocation;
 
-    private LocationListener locationListener;
+    /* An instance of location updates request listener. It is used for receiving notifications from the LocationClient when the location has changed.*/
+    private LocationListener mLocationListener;
 
-    private boolean mUpdatesRequested;
+    /* An enumeration to represent state of location updates request, it can either be Fired, Wait for connection or Stopped.*/
+    private STATUS_UPDATES_REQ mStatus;
+
+    /* Counter for current iteration number in the total required number of location updates. When reaching maximum limit, you have to remove location request explicitly.*/
+    private int numOfRequest;
 
     public MyLocationManager(Context a_context) {
         mContext = a_context;
@@ -69,19 +79,39 @@ public class MyLocationManager implements
                 UPDATE_INTERVAL,
                 FASTEST_INTERVAL);
 
-        locationListener = new LocationListener() {
+        /* The listener is called if the LocationListener has been registered with the location client using requestLocationUpdates*/
+        mLocationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                String msg = "Updated Location: " +
+
+                /* Increment number of received location updates*/
+                numOfRequest ++;
+
+                String msg = "iteration#"+ numOfRequest+":Updated Location: " +
                         Double.toString(location.getLatitude()) + "," +
                         Double.toString(location.getLongitude());
 
+                /* save current received location. */
                 mLocation = location;
-                Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+                Log.d(TAG, msg);
+
+                /* When using this option (setNumOfUpdates) care must be taken to either explicitly remove the request when no longer needed or to set an expiration.
+                 * Otherwise in some cases if a location can't be computed, this request could stay active indefinitely consuming power.
+                 * I decided to remove the request explicitly after receiving last location update counter. */
+                if(isLastLocationUpdate()){
+
+                    /* remove the request explicitly as recommended by Android API Reference. Note that it will remove the request for the corresponding client
+                     * not for any new client that is created upon screen rotation. You can put a breakpoint here to understand this point better.*/
+                    mLocationClient.removeLocationUpdates(this);
+
+                    Log.d(TAG, "Old Client is Disconnected");
+                    mLocationClient.disconnect();
+                }
             }
         };
 
-        mUpdatesRequested = false;
+        mStatus = STATUS_UPDATES_REQ.STOPPED;
+        numOfRequest = 0;
     }
 
     public Location getUserLocation(){
@@ -96,7 +126,8 @@ public class MyLocationManager implements
     @Override
     public void onConnected(Bundle bundle) {
 
-        Toast.makeText(mContext, "Location client is Connected to Google Play Services", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(mContext, "Location client is Connected to Google Play Services", Toast.LENGTH_SHORT).show();
+        Log.d(TAG,"Location client is Connected to Google Play Services");
 
         /* getLastLocation is good for "best effort" cases where a location is needed immediately or none at all can be used.
         * If you really want to wait for a location it's best to use requestLocationUpdates and wait for the callback.
@@ -109,16 +140,23 @@ public class MyLocationManager implements
         *
         * In case of  Battery Saving mode: Fused location provider uses WiFi and network to determine your location.
         * Since WiFi is fast as explained earlier, LocationClient.getLastLocation() will not return null */
-        mLocation = mLocationClient.getLastLocation();
+        /*mLocation = mLocationClient.getLastLocation();
         if(null == mLocation) {
 
             Log.w(TAG,"Couldn't obtain your location information");
 
-            /* set default location attributes to Cairo geo-information */
+            *//* set default location attributes to Cairo geo-information *//*
             mLocation = new Location("");
             mLocation.setLatitude(DEFAULT_LATITUDE);
             mLocation.setLongitude(DEFAULT_LONGITUDE);
-        }
+        }*/
+
+        /*if( STATUS_UPDATES_REQ.WAIT_FOR_CLIENT_CONNECT == mStatus){
+            mLocationClient.requestLocationUpdates(mLocationRequest, mLocationListener);
+
+            *//* Change status of request of location updates to be fired. *//*
+            mStatus = STATUS_UPDATES_REQ.FIRED;
+        }*/
     }
 
     /*
@@ -229,9 +267,10 @@ public class MyLocationManager implements
 
         /*Set the fastest update interval to 1 second*/
         mLocationRequest.setFastestInterval(a_fastestInterval);
-    }
 
-    /* Location Services sends location updates to your app as an argument passed to a callback method you define. */
+        /* Set required number of location updates to be received from connected client. Note that you have to remove the request explicitly when it's no longer needed*/
+        mLocationRequest.setNumUpdates(MAX_NUM_OF_REQ);
+    }
 
     // Define a DialogFragment that displays the error dialog
     public static class ErrorDialogFragment extends DialogFragment {
@@ -262,14 +301,24 @@ public class MyLocationManager implements
     }
 
     public LocationListener getLocationListener() {
-        return locationListener;
+        return mLocationListener;
     }
 
-    public boolean isUpdatesRequested() {
-        return mUpdatesRequested;
+    public STATUS_UPDATES_REQ getUpdatesStatus() {
+        return mStatus;
     }
 
-    public void setUpdatesRequested(boolean mUpdatesRequested) {
-        this.mUpdatesRequested = mUpdatesRequested;
+    public void setUpdatesRequested(STATUS_UPDATES_REQ a_updatesRequested) {
+        this.mStatus = a_updatesRequested;
+    }
+
+    private boolean isLastLocationUpdate(){
+        return numOfRequest == MAX_NUM_OF_REQ;
+    }
+
+    public enum STATUS_UPDATES_REQ {
+        STOPPED,
+        WAIT_FOR_CLIENT_CONNECT,
+        FIRED
     }
 }

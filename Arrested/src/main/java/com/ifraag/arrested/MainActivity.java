@@ -7,9 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.net.Uri;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
@@ -32,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.ifraag.location.MyLocationManager;
+import com.ifraag.location.MyLocationManager.STATUS_UPDATES_REQ;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,8 +38,14 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
+    /* String representing Log tag*/
     private static final String TAG="MainActivity";
+
+    /* Activity request code that is used in case Google Services Application error. It will open Google Play Activity , waiting
+    * for result for this request code in onActivityResult for current Activity.*/
     public static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
+
+    /* String representing key of preference value that indicates whether location update is required or not. */
     private final String KEY_PREF_UPDATE_REQUIRED="key_update_required";
 
     /**
@@ -58,12 +63,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
      */
     ViewPager mViewPager;
 
+    /* An instance of my custom location manager that wraps most of location data queries/retrieving */
     private MyLocationManager mLocationManager;
 
-    // Open the shared preferences
+    /* An instance of shared preferences to load/save data permanently.*/
     SharedPreferences mPrefs;
 
-    // Get a SharedPreferences editor
+    /* An instance of editor to save data permanently into shared preferences file. */
     SharedPreferences.Editor mEditor;
 
     @Override
@@ -105,8 +111,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setTabListener(this));
         }
 
+        /* Initialize shared preferences and editor for private file to load/save data. */
         mPrefs = getSharedPreferences(getPackageName(),Context.MODE_PRIVATE);
         mEditor = mPrefs.edit();
+
         /* You should create the location client in onCreate(), then connect it in onStart(), Disconnect the client in onStop() to save
         * battery power. */
         mLocationManager = new MyLocationManager(this);
@@ -119,49 +127,50 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         /* you should always check that the APK is installed before you attempt to connect to Location Services. */
         if(mLocationManager.isGooglePlayServicesAvailable()){
 
-            /* Following this pattern of connection and disconnection helps save battery power */
+            /* Following this pattern of connection and disconnection helps save battery power.*/
             mLocationManager.getLocationClient().connect();
         }
     }
 
-    @Override
+    /*@Override
     protected void onResume() {
         super.onResume();
-        /*
-         * Get any previous setting for location updates
-         * Gets "false" if an error occurs
-         */
+         //Get any previous setting for location updates and set it into location manager object.
         if (mPrefs.contains(KEY_PREF_UPDATE_REQUIRED)) {
-            mLocationManager.setUpdatesRequested(
-                    mPrefs.getBoolean(KEY_PREF_UPDATE_REQUIRED, false));
-        } else { // Otherwise, turn off location updates
-            mEditor.putBoolean(KEY_PREF_UPDATE_REQUIRED, false);
-            mEditor.commit();
+
+            String defaultState = STATUS_UPDATES_REQ.STOPPED.toString();
+            String savedStatus = mPrefs.getString(KEY_PREF_UPDATE_REQUIRED, defaultState);
+            STATUS_UPDATES_REQ status = STATUS_UPDATES_REQ.valueOf(savedStatus);
+
+            mLocationManager.setUpdatesRequested(status);
         }
     }
 
     @Override
     protected void onPause() {
+        String state = mLocationManager.getUpdatesStatus().toString();
         // Save the current setting for updates
-        mEditor.putBoolean(KEY_PREF_UPDATE_REQUIRED, mLocationManager.isUpdatesRequested());
+        mEditor.putString(KEY_PREF_UPDATE_REQUIRED, state );
         mEditor.commit();
         super.onPause();
-    }
+    }*/
 
     @Override
     protected void onStop() {
 
-        /*If the client is connected*/
-        if (mLocationManager.getLocationClient().isConnected()) {
+        /*If the client is connected and no update request was fired, so Disconnect client from Google Play Services API. */
+        if (mLocationManager.getLocationClient().isConnected() &&
+                (STATUS_UPDATES_REQ.STOPPED == mLocationManager.getUpdatesStatus())) {
 
-            /* Remove location updates for a listener.*/
+            //Remove location updates for a listener.
             mLocationManager.getLocationClient().removeLocationUpdates(
                     mLocationManager.getLocationListener()
             );
-        }
 
-        /* Following this pattern of connection and disconnection helps save battery power */
-        mLocationManager.getLocationClient().disconnect();
+            Log.d(TAG, "Disconnect client from Google Play Services API");
+            /* Following this pattern of connection and disconnection helps save battery power */
+            mLocationManager.getLocationClient().disconnect();
+        }
 
         super.onStop();
     }
@@ -174,10 +183,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 /* If the result code is Activity.RESULT_OK, try to connect again */
                 switch (resultCode) {
                     case Activity.RESULT_OK :
-                         mLocationManager.getLocationClient().connect();
-                        /* TODO: You will encounter an exception because of trying to get user location while client is not connected to Service yet*/
-                        Location loc = mLocationManager.getUserLocation();
-                        Log.d(TAG, "Location information is\n"+"Latitude:"+loc.getLatitude()+"\nLongitude:"+loc.getLongitude()+"\n");
+                        mLocationManager.setUpdatesRequested(STATUS_UPDATES_REQ.WAIT_FOR_CLIENT_CONNECT);
+                        mLocationManager.getLocationClient().connect();
                         break;
                 }
                 break;
@@ -200,9 +207,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
         final Context context = this;
+
         /* Case Send action button is pressed. */
         if (id == R.id.action_send){
+
+            /* Prepare an alert dialog to be displayed indicating to user about this dangerous result of pressing send button. */
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
                     .setTitle(getResources().getString(R.string.warn_dialg_send_title))
                     .setMessage(getResources().getString(R.string.warn_dialg_send_msg))
@@ -210,23 +221,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             /* Do nothing upon sending cancellation */
-                            Toast.makeText(getApplicationContext(),"Cancel is chosen", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .setPositiveButton(getResources().getString(R.string.warn_dailog_send_positive), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Toast.makeText(getApplicationContext(),"Send is chosen", Toast.LENGTH_SHORT).show();
 
-                            /*Location loc = mLocationManager.getUserLocation();
-                            Log.d(TAG, "Location information is\n"+"Latitude:"+loc.getLatitude()+"\nLongitude:"+loc.getLongitude()+"\n");*/
+                            /* change status of location updates request to fired */
+                            mLocationManager.setUpdatesRequested(STATUS_UPDATES_REQ.FIRED);
 
-                            if(mLocationManager.getLocationClient().isConnected()){
-
-                                mLocationManager.getLocationClient().requestLocationUpdates(
-                                        mLocationManager.getLocationRequest(),
-                                        mLocationManager.getLocationListener());
-                            }
+                            /* Request location updates from the connected client. This will trigger automatic updates according
+                            * to the configures request parameters interval/fastest interval*/
+                            mLocationManager.getLocationClient().requestLocationUpdates(
+                                    mLocationManager.getLocationRequest(),
+                                    mLocationManager.getLocationListener());
                         }
                     })
                     .setIcon(R.drawable.ic_action_warning);
