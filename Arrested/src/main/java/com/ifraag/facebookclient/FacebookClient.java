@@ -142,8 +142,11 @@ public class FacebookClient {
             }
         }
 
-        /* Update your application layout views.*/
-        facebookView.updateLayoutViews();
+        /* FacebookView is null when you don't have any updates in layout.*/
+        if(null != facebookView) {
+            /* Update your application layout views.*/
+            facebookView.updateLayoutViews();
+        }
     }
 
     private void openSession(){
@@ -471,8 +474,10 @@ public class FacebookClient {
     private class SessionStatusCallback implements Session.StatusCallback {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
-            /*updateView();*/
-            facebookView.updateLayoutViews();
+
+            /* FacebookView is null when you don't have any updates in layout.*/
+            if(null != facebookView)
+                facebookView.updateLayoutViews();
 
             if (pendingPublishReauthorization &&
                     state.equals(SessionState.OPENED_TOKEN_UPDATED)) {
@@ -571,7 +576,8 @@ public class FacebookClient {
             userProfilePicture = drawable;
 
             /* Now after getting the user profile picture, update corresponding preference icon. */
-            facebookView.updateLayoutViews();
+            if(null != facebookView)
+                facebookView.updateLayoutViews();
         }
     }
 

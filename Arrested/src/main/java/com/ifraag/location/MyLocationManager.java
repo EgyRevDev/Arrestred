@@ -44,7 +44,7 @@ public class MyLocationManager implements
 
     /* Minimum duration between requests is 5 min, hence in 1 hour, 12 update Requests are sent
     * Accordingly 100 update request will finish in about 8.3 hours. */
-    private static final int MAX_NUM_OF_REQ = 5;
+    private static final int MAX_NUM_OF_REQ = 1;
 
     /* Activity context within which location manager is running. */
     private Context mContext;
@@ -106,6 +106,15 @@ public class MyLocationManager implements
 
                     Log.d(TAG, "Old Client is Disconnected");
                     mLocationClient.disconnect();
+
+                    if(true == ((MainActivity)mContext).isFacebookConfigured())
+                        ((MainActivity)mContext).getFacebookClient().getFacebookPageId(mLocation);
+
+                    if(true == ((MainActivity)mContext).isTwitterConfigured())
+                        Log.d(TAG, "Twitter To Be Integrated");
+
+                    if(true == ((MainActivity)mContext).isGMailConfigured())
+                        Log.d(TAG, "GMail To Be Integrated");
                 }
             }
         };

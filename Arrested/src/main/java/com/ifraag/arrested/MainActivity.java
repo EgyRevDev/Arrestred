@@ -29,12 +29,14 @@ import android.widget.CheckedTextView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.ifraag.facebookclient.FacebookClient;
 import com.ifraag.location.MyLocationManager;
 import com.ifraag.location.MyLocationManager.STATUS_UPDATES_REQ;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
@@ -44,9 +46,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /* Activity request code that is used in case Google Services Application error. It will open Google Play Activity , waiting
     * for result for this request code in onActivityResult for current Activity.*/
     public static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
-    /* String representing key of preference value that indicates whether location update is required or not. */
-    private final String KEY_PREF_UPDATE_REQUIRED="key_update_required";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -71,6 +70,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     /* An instance of editor to save data permanently into shared preferences file. */
     SharedPreferences.Editor mEditor;
+
+    private FacebookClient facebookClient;
+
+    private boolean isFacebookConfigured = false;
+    private boolean isTwitterConfigured = false;
+    private boolean isGMailConfigured = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +123,13 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         /* You should create the location client in onCreate(), then connect it in onStart(), Disconnect the client in onStop() to save
         * battery power. */
         mLocationManager = new MyLocationManager(this);
+
+        loadConfiguredAccountTypes();
+
+        if(isFacebookConfigured) {
+            facebookClient = new FacebookClient(this, null);
+            facebookClient.activateSession();
+        }
     }
 
     @Override
@@ -129,6 +141,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
             /* Following this pattern of connection and disconnection helps save battery power.*/
             mLocationManager.getLocationClient().connect();
+        }
+
+        if(isFacebookConfigured){
+            /* Add session callback that will be called in case session state is changed */
+            facebookClient.getSession().addCallback(facebookClient.getStatusCallback());
         }
     }
 
@@ -173,6 +190,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
 
         super.onStop();
+
+        if(isFacebookConfigured){
+            /* Add session callback that will be called in case session state is changed */
+            facebookClient.getSession().addCallback(facebookClient.getStatusCallback());
+        }
     }
 
     @Override
@@ -190,6 +212,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 break;
             default:
                 super.onActivityResult(requestCode,resultCode,data);
+                if(isFacebookConfigured){
+                    /* Update active session with active permission whether it is read or publish permission */
+                    facebookClient.getSession().onActivityResult(this, requestCode, resultCode, data);
+                }
         }
     }
 
@@ -489,6 +515,44 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return  inflater.inflate(R.layout.fragment_extra_info, container, false);
 
         }
+    }
+
+    public FacebookClient getFacebookClient() {
+        return facebookClient;
+    }
+
+    public void loadConfiguredAccountTypes(){
+        Map<String,?> map = mPrefs.getAll();
+        for (Map.Entry<String, ?> kv : map.entrySet()) {
+            if(kv.getKey().startsWith(SettingsActivity.KEY_PREFIX_TITLE) &&
+                    kv.getValue().equals(getResources().getString(R.string.pref_facebook_title))){
+                isFacebookConfigured = true;
+                continue;
+            }
+
+            if(kv.getKey().startsWith(SettingsActivity.KEY_PREFIX_TITLE) &&
+                    kv.getValue().equals(getResources().getString(R.string.pref_twitter_title))){
+                isTwitterConfigured = true;
+                continue;
+            }
+
+            if(kv.getKey().startsWith(SettingsActivity.KEY_PREFIX_TITLE) &&
+                    kv.getValue().equals(getResources().getString(R.string.pref_gmail_title))){
+                isGMailConfigured = true;
+            }
+        }
+    }
+
+    public boolean isFacebookConfigured(){
+        return isFacebookConfigured;
+    }
+
+    public boolean isTwitterConfigured(){
+        return isTwitterConfigured;
+    }
+
+    public boolean isGMailConfigured(){
+        return isGMailConfigured;
     }
 }
 

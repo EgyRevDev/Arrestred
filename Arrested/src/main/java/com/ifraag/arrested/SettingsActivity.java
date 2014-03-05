@@ -210,9 +210,10 @@ public class SettingsActivity extends ActionBarActivity {
                 preferencesList.add(preference);
 
                 /* Remove restored preference attributes from the shared preferences file. Because at run-time corresponding preference
-                * can be removed so it is meaningless to keep it inside shared preferences file. */
-                editor.remove(kv.getKey());
-                editor.remove(KEY_PREFIX_ICON_RES_ID + kv.getKey());
+                * that represents an account type, can be removed so it is meaningful to keep it inside shared preferences file.
+                 * until user decides to remove this account type.*/
+                /*editor.remove(kv.getKey());
+                editor.remove(KEY_PREFIX_ICON_RES_ID + kv.getKey());*/
 
                 /* Addition to preference group will not applied here since commit transaction doesn't happen immediately. */
             }
